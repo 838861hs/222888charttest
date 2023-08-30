@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>教科</th>
+          <th>算数</th>
+          <th>図工</th>
+          <th>国語</th>
+          <th>体育</th>
+          <th>音楽</th>
+          <th>理科</th>
+          <th>社会</th>
+          <th>その他</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>人数(人)</td>
+          <td><input class="count" type="number" min="0" value="10"></td>
+          <td><input class="count" type="number" min="0" value="7"></td>
+          <td><input class="count" type="number" min="0" value="5"></td>
+          <td><input class="count" type="number" min="0" value="4"></td>
+          <td><input class="count" type="number" min="0" value="3"></td>
+          <td><input class="count" type="number" min="0" value="2"></td>
+          <td><input class="count" type="number" min="0" value="2"></td>
+          <td><input class="count" type="number" min="0" value="2"></td>
+        </tr>
+        <tr>
+          <td>百分率(人)</td>
+          <td><input class="percentage" type="number" min="0" value="29"></td>
+          <td><input class="percentage" type="number" min="0" value="20"></td>
+          <td><input class="percentage" type="number" min="0" value="14"></td>
+          <td><input class="percentage" type="number" min="0" value="11"></td>
+          <td><input class="percentage" type="number" min="0" value="9"></td>
+          <td><input class="percentage" type="number" min="0" value="6"></td>
+          <td><input class="percentage" type="number" min="0" value="6"></td>
+          <td><input class="percentage" type="number" min="0" value="5"></td>
+        </tr>
+      </tbody>
+    </table>
+    <button id="pieChartBtn">円グラフに変更</button>
+    <button id="barChartBtn">棒グラフに変更</button>
+    <button id="lineChartBtn">折れ線グラフに変更</button>
+    <canvas id="chart"></canvas>
+    <script type="module" src="/script.js"></script>
+  </body>
+</html>
