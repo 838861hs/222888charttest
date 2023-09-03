@@ -125,13 +125,14 @@ canvas.addEventListener('mousemove', function(e) {
     if (point.isDragging && draggable) {
         point.x = x;
         point.y = y;
-        drawBackground();
+        draw();
     } else if (!draggable && isDrawing) {
         offscreenCtx.lineTo(x, y);
         offscreenCtx.stroke();
         drawUserArt();
     }
 });
+
 
 canvas.addEventListener('mouseup', function(e) {
     if (point.isDragging && draggable) {
