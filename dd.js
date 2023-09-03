@@ -1,9 +1,12 @@
 let canvas = document.getElementById('myCanvas');
 let ctx = canvas.getContext('2d');
+let offscreenCanvas = document.createElement('canvas');
+offscreenCanvas.width = canvas.width;
+offscreenCanvas.height = canvas.height;
+let offscreenCtx = offscreenCanvas.getContext('2d');
 const gridSize = 30;
 let isDrawing = false;
 let draggable = true;
-
 let staticTriangles = [];
 
 const blueLineStartX = Math.floor(canvas.width / 2 / gridSize - 3) * gridSize;
@@ -18,12 +21,6 @@ const point = {
     radius: 5,
     isDragging: false
 };
-
-// キャンバスの内容を一時的に保存するためのオフスクリーンキャンバスを作成
-let offscreenCanvas = document.createElement('canvas');
-offscreenCanvas.width = canvas.width;
-offscreenCanvas.height = canvas.height;
-let offscreenCtx = offscreenCanvas.getContext('2d');
 
 function drawDynamicTriangle() {
     ctx.fillStyle = 'rgba(0, 173, 239, 0.5)';
@@ -76,24 +73,30 @@ function drawGrid() {
 function drawBlueLine() {
     ctx.strokeStyle = "#0000FF";
     ctx.lineWidth = 2;
-
     ctx.beginPath();
     ctx.moveTo(blueLineStartX, blueLineY);
     ctx.lineTo(blueLineEndX, blueLineY);
     ctx.stroke();
 }
 
-function draw() {
+// 背景と三角形を描画する関数
+function drawBackground() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // オフスクリーンキャンバスの内容をメインキャンバスに転送
-    ctx.drawImage(offscreenCanvas, 0, 0);
-
     drawGrid();
     drawBlueLine();
     drawStaticTriangles();
     drawDynamicTriangle();
     drawDraggablePoint();
+}
+
+// ユーザーが描画した部分を表示する関数
+function drawUserArt() {
+    ctx.drawImage(offscreenCanvas, 0, 0);
+}
+
+function draw() {
+    drawBackground();
+    drawUserArt();
 }
 
 canvas.addEventListener('mousedown', function(e) {
@@ -108,10 +111,6 @@ canvas.addEventListener('mousedown', function(e) {
             point.isDragging = true;
         }
     } else {
-        offscreenCtx.strokeStyle = "#000";
-        offscreenCtx.lineWidth = 2;
-        offscreenCtx.lineJoin = "round";
-        offscreenCtx.lineCap = "round";
         offscreenCtx.beginPath();
         offscreenCtx.moveTo(x, y);
         isDrawing = true;
@@ -126,11 +125,11 @@ canvas.addEventListener('mousemove', function(e) {
     if (point.isDragging && draggable) {
         point.x = x;
         point.y = y;
-        draw();
+        drawBackground();
     } else if (!draggable && isDrawing) {
         offscreenCtx.lineTo(x, y);
         offscreenCtx.stroke();
-        draw();
+        drawUserArt();
     }
 });
 
@@ -162,5 +161,17 @@ disableDragBtn.addEventListener('click', function() {
         disableDragBtn.textContent = "ドラッグを有効にする";
     }
 });
+
+// 絵をリセットする関数
+function resetDrawnArt() {
+    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+    draw();
+}
+
+const resetDrawnArtBtn = document.createElement('button');
+resetDrawnArtBtn.textContent = "書いた絵をリセット";
+document.body.appendChild(resetDrawnArtBtn);
+
+resetDrawnArtBtn.addEventListener('click', resetDrawnArt);
 
 draw();
