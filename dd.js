@@ -1,3 +1,5 @@
+// ===================== 変数定義 =====================
+
 let canvas = document.getElementById('myCanvas');
 let ctx = canvas.getContext('2d');
 let offscreenCanvas = document.createElement('canvas');
@@ -8,19 +10,18 @@ const gridSize = 30;
 let isDrawing = false;
 let draggable = true;
 let staticTriangles = [];
-
 const blueLineStartX = Math.floor(canvas.width / 2 / gridSize - 3) * gridSize;
 const blueLineEndX = blueLineStartX + 6 * gridSize;
 const blueLineY = canvas.height / 2 + 2 * gridSize;
-
 let staticTriangle = null;
-
 const point = {
     x: blueLineStartX + 3 * gridSize,
     y: blueLineY - 2 * gridSize,
     radius: 5,
     isDragging: false
 };
+
+// ===================== 関数定義 =====================
 
 function drawDynamicTriangle() {
     ctx.fillStyle = 'rgba(0, 173, 239, 0.5)';
@@ -51,17 +52,22 @@ function drawDraggablePoint() {
     ctx.fill();
 }
 
+function resetTriangleAndPoint() {
+    staticTriangles = [];
+    point.x = blueLineStartX + 3 * gridSize;
+    point.y = blueLineY - 2 * gridSize;
+    draw();
+}
+
 function drawGrid() {
     ctx.strokeStyle = "#e0e0e0";
     ctx.lineWidth = 1;
-
     for (let i = 0; i <= canvas.width; i += gridSize) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
         ctx.lineTo(i, canvas.height);
         ctx.stroke();
     }
-
     for (let j = 0; j <= canvas.height; j += gridSize) {
         ctx.beginPath();
         ctx.moveTo(0, j);
@@ -79,7 +85,6 @@ function drawBlueLine() {
     ctx.stroke();
 }
 
-// 背景と三角形を描画する関数
 function drawBackground() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid();
@@ -89,7 +94,6 @@ function drawBackground() {
     drawDraggablePoint();
 }
 
-// ユーザーが描画した部分を表示する関数
 function drawUserArt() {
     ctx.drawImage(offscreenCanvas, 0, 0);
 }
@@ -98,6 +102,35 @@ function draw() {
     drawBackground();
     drawUserArt();
 }
+
+function resetDrawnArt() {
+    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+    draw();
+}
+
+// ===================== ボタンの生成 =====================
+
+function createButton(text, eventHandler) {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    document.body.appendChild(btn);
+    btn.addEventListener('click', eventHandler);
+    return btn;
+}
+
+const disableDragBtn = createButton("ドラッグを無効にする", function() {
+    draggable = !draggable;
+    if (draggable) {
+        this.textContent = "ドラッグを無効にする";
+    } else {
+        this.textContent = "ドラッグを有効にする";
+    }
+});
+
+const resetTriangleAndPointBtn = createButton("三角形と点をリセット", resetTriangleAndPoint);
+const resetDrawnArtBtn = createButton("書いた絵をリセット", resetDrawnArt);
+
+// ===================== イベントリスナー =====================
 
 canvas.addEventListener('mousedown', function(e) {
     let rect = canvas.getBoundingClientRect();
@@ -133,7 +166,6 @@ canvas.addEventListener('mousemove', function(e) {
     }
 });
 
-
 canvas.addEventListener('mouseup', function(e) {
     if (point.isDragging && draggable) {
         point.x = Math.round(point.x / gridSize) * gridSize;
@@ -150,29 +182,6 @@ canvas.addEventListener('mouseup', function(e) {
     }
 });
 
-const disableDragBtn = document.createElement('button');
-disableDragBtn.textContent = "ドラッグを無効にする";
-document.body.appendChild(disableDragBtn);
-
-disableDragBtn.addEventListener('click', function() {
-    draggable = !draggable;
-    if (draggable) {
-        disableDragBtn.textContent = "ドラッグを無効にする";
-    } else {
-        disableDragBtn.textContent = "ドラッグを有効にする";
-    }
-});
-
-// 絵をリセットする関数
-function resetDrawnArt() {
-    offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
-    draw();
-}
-
-const resetDrawnArtBtn = document.createElement('button');
-resetDrawnArtBtn.textContent = "書いた絵をリセット";
-document.body.appendChild(resetDrawnArtBtn);
-
-resetDrawnArtBtn.addEventListener('click', resetDrawnArt);
+// ===================== 初期描画 =====================
 
 draw();
