@@ -1,20 +1,20 @@
 
-var backgroundCanvas = document.getElementById('backgroundCanvas');
-var backgroundContext = backgroundCanvas.getContext('2d');
-var canvas = document.getElementById('myCanvas');
-var context = canvas.getContext('2d');
+const backgroundCanvas = document.getElementById('backgroundCanvas');
+const backgroundContext = backgroundCanvas.getContext('2d');
+const canvas = document.getElementById('myCanvas');
+const context = canvas.getContext('2d');
 
 function drawGrid() {
   backgroundContext.strokeStyle = '#e0e0e0';
   backgroundContext.lineWidth = 1;
 
-  var gridSpacing = 30;
-  for (var x = 0; x <= backgroundCanvas.width; x += gridSpacing) {
+  const gridSpacing = 30;
+  for (let x = 0; x <= backgroundCanvas.width; x += gridSpacing) {
     backgroundContext.moveTo(x, 0);
     backgroundContext.lineTo(x, backgroundCanvas.height);
   }
 
-  for (var y = 0; y <= backgroundCanvas.height; y += gridSpacing) {
+  for (let y = 0; y <= backgroundCanvas.height; y += gridSpacing) {
     backgroundContext.moveTo(0, y);
     backgroundContext.lineTo(backgroundCanvas.width, y);
   }
@@ -23,12 +23,12 @@ function drawGrid() {
 }
 
 function drawBlueLine() {
-var centerX = backgroundCanvas.width / 2;
-var centerY = backgroundCanvas.height / 2;
-var gridSpacing = 30;
-var lineLength = gridSpacing * 6;
+let centerX = backgroundCanvas.width / 2;
+let centerY = backgroundCanvas.height / 2;
+const gridSpacing = 30;
+let lineLength = gridSpacing * 6;
 
-var adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
+let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
 
 backgroundContext.strokeStyle = 'blue';
 backgroundContext.lineWidth = 2;
@@ -39,11 +39,11 @@ backgroundContext.lineTo(adjustedCenterX + lineLength / 2, centerY);
 backgroundContext.stroke();
 }
 function drawDot() {
-var centerX = backgroundCanvas.width / 2;
-var centerY = backgroundCanvas.height / 2;
-var gridSpacing = 30;
+let centerX = backgroundCanvas.width / 2;
+let centerY = backgroundCanvas.height / 2;
+const gridSpacing = 30;
 
-var adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
+let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
 
 backgroundContext.fillStyle = 'red'; // 点の色を赤に設定します
 backgroundContext.beginPath();
@@ -55,9 +55,9 @@ drawGrid();
 drawBlueLine();
 drawDot();
 
-var isEraser = false;
-var isDrawing = false;
-var lastX, lastY;
+let isEraser = false;
+let isDrawing = false;
+let lastX, lastY;
 
 document.getElementById('toggleEraser').addEventListener('click', function() {
   isEraser = !isEraser;
