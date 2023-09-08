@@ -55,24 +55,6 @@ drawGrid();
 drawBlueLine();
 drawDot();
 
-function drawTriangle() {
-  let centerX = backgroundCanvas.width / 2;
-  let centerY = backgroundCanvas.height / 2;
-  const gridSpacing = 30;
-  let lineLength = gridSpacing * 6;
-  let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
-
-  backgroundContext.fillStyle = 'rgba(0, 255, 255, 0.5)';
-  backgroundContext.beginPath();
-  backgroundContext.moveTo(adjustedCenterX - lineLength / 2, centerY);
-  backgroundContext.lineTo(adjustedCenterX + lineLength / 2, centerY);
-  backgroundContext.lineTo(adjustedCenterX, centerY - gridSpacing * 2);
-  backgroundContext.closePath();
-  backgroundContext.fill();
-}
-
-drawTriangle();
-
 let isEraser = false;
 let isDrawing = false;
 let lastX, lastY;
