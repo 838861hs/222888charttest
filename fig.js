@@ -4,74 +4,74 @@ const backgroundContext = backgroundCanvas.getContext('2d');
 const canvas = document.getElementById('myCanvas');
 const context = canvas.getContext('2d');
 
-function drawGrid() {
-  backgroundContext.strokeStyle = '#e0e0e0';
-  backgroundContext.lineWidth = 1;
+// function drawGrid() {
+//   backgroundContext.strokeStyle = '#e0e0e0';
+//   backgroundContext.lineWidth = 1;
 
-  const gridSpacing = 30;
-  for (let x = 0; x <= backgroundCanvas.width; x += gridSpacing) {
-    backgroundContext.moveTo(x, 0);
-    backgroundContext.lineTo(x, backgroundCanvas.height);
-  }
+//   const gridSpacing = 30;
+//   for (let x = 0; x <= backgroundCanvas.width; x += gridSpacing) {
+//     backgroundContext.moveTo(x, 0);
+//     backgroundContext.lineTo(x, backgroundCanvas.height);
+//   }
 
-  for (let y = 0; y <= backgroundCanvas.height; y += gridSpacing) {
-    backgroundContext.moveTo(0, y);
-    backgroundContext.lineTo(backgroundCanvas.width, y);
-  }
+//   for (let y = 0; y <= backgroundCanvas.height; y += gridSpacing) {
+//     backgroundContext.moveTo(0, y);
+//     backgroundContext.lineTo(backgroundCanvas.width, y);
+//   }
 
-  backgroundContext.stroke();
-}
+//   backgroundContext.stroke();
+// }
 
-function drawBlueLine() {
-let centerX = backgroundCanvas.width / 2;
-let centerY = backgroundCanvas.height / 2;
-const gridSpacing = 30;
-let lineLength = gridSpacing * 6;
+// function drawBlueLine() {
+// let centerX = backgroundCanvas.width / 2;
+// let centerY = backgroundCanvas.height / 2;
+// const gridSpacing = 30;
+// let lineLength = gridSpacing * 6;
 
-let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
+// let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
 
-backgroundContext.strokeStyle = 'blue';
-backgroundContext.lineWidth = 2;
+// backgroundContext.strokeStyle = 'blue';
+// backgroundContext.lineWidth = 2;
 
-backgroundContext.beginPath();
-backgroundContext.moveTo(adjustedCenterX - lineLength / 2, centerY);
-backgroundContext.lineTo(adjustedCenterX + lineLength / 2, centerY);
-backgroundContext.stroke();
-}
-function drawDot() {
-let centerX = backgroundCanvas.width / 2;
-let centerY = backgroundCanvas.height / 2;
-const gridSpacing = 30;
+// backgroundContext.beginPath();
+// backgroundContext.moveTo(adjustedCenterX - lineLength / 2, centerY);
+// backgroundContext.lineTo(adjustedCenterX + lineLength / 2, centerY);
+// backgroundContext.stroke();
+// }
+// function drawDot() {
+// let centerX = backgroundCanvas.width / 2;
+// let centerY = backgroundCanvas.height / 2;
+// const gridSpacing = 30;
 
-let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
+// let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
 
-backgroundContext.fillStyle = 'red'; // 点の色を赤に設定します
-backgroundContext.beginPath();
-backgroundContext.arc(adjustedCenterX, centerY - gridSpacing * 2, 5, 0, 2 * Math.PI); // 点の半径を5に設定します
-backgroundContext.fill();
-}
+// backgroundContext.fillStyle = 'red'; // 点の色を赤に設定します
+// backgroundContext.beginPath();
+// backgroundContext.arc(adjustedCenterX, centerY - gridSpacing * 2, 5, 0, 2 * Math.PI); // 点の半径を5に設定します
+// backgroundContext.fill();
+// }
 
-drawGrid();
-drawBlueLine();
-drawDot();
+// drawGrid();
+// drawBlueLine();
+// drawDot();
 
-function drawTriangle() {
-  let centerX = backgroundCanvas.width / 2;
-  let centerY = backgroundCanvas.height / 2;
-  const gridSpacing = 30;
-  let lineLength = gridSpacing * 6;
-  let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
+// function drawTriangle() {
+//   let centerX = backgroundCanvas.width / 2;
+//   let centerY = backgroundCanvas.height / 2;
+//   const gridSpacing = 30;
+//   let lineLength = gridSpacing * 6;
+//   let adjustedCenterX = Math.round(centerX / gridSpacing) * gridSpacing;
 
-  backgroundContext.fillStyle = 'rgba(0, 255, 255, 0.5)';
-  backgroundContext.beginPath();
-  backgroundContext.moveTo(adjustedCenterX - lineLength / 2, centerY);
-  backgroundContext.lineTo(adjustedCenterX + lineLength / 2, centerY);
-  backgroundContext.lineTo(adjustedCenterX, centerY - gridSpacing * 2);
-  backgroundContext.closePath();
-  backgroundContext.fill();
-}
+//   backgroundContext.fillStyle = 'rgba(0, 255, 255, 0.5)';
+//   backgroundContext.beginPath();
+//   backgroundContext.moveTo(adjustedCenterX - lineLength / 2, centerY);
+//   backgroundContext.lineTo(adjustedCenterX + lineLength / 2, centerY);
+//   backgroundContext.lineTo(adjustedCenterX, centerY - gridSpacing * 2);
+//   backgroundContext.closePath();
+//   backgroundContext.fill();
+// }
 
-drawTriangle();
+// drawTriangle();
 
 let isEraser = false;
 let isDrawing = false;

@@ -20,15 +20,12 @@ function drawGrid() {
   }
 }
 
-
-
 // ===================== 三角形を初期位置描画 =====================
 const triCanvas = document.getElementById('triangleCanvas');
 const triCtx = triCanvas.getContext('2d');
 let draggable = true;
 let staticTriangles = [];
 let staticTriangle = null;
-let isDrawing = false;
 const blueLineStartX = Math.floor(bgCanvas.width / 2 / gridSize - 3) * gridSize;
 const blueLineEndX = blueLineStartX + 6 * gridSize;
 const blueLineY = bgCanvas.height / 2 + 2 * gridSize;
@@ -92,23 +89,22 @@ function draw(){
 }
 draw();
 // ===================== イベントリスナー =====================
-triCanvas.addEventListener('mousedown', function(e) {
-  let rect = triCanvas.getBoundingClientRect();
-  let x = e.clientX - rect.left;
-  let y = e.clientY - rect.top;
+// triCanvas.addEventListener('mousedown', function(e) {
+//   let rect = triCanvas.getBoundingClientRect();
+//   let x = e.clientX - rect.left;
+//   let y = e.clientY - rect.top;
 
-  if (draggable) {
-      let dx = point.x - x;
-      let dy = point.y - y;
-      if (dx * dx + dy * dy <= point.radius * point.radius) {
-          point.isDragging = true;
-      }
-  } else {
-      triCtx.beginPath();
-      triCtx.moveTo(x, y);
-      isDrawing = true;
-  }
-});
+//   if (draggable) {
+//       let dx = point.x - x;
+//       let dy = point.y - y;
+//       if (dx * dx + dy * dy <= point.radius * point.radius) {
+//           point.isDragging = true;
+//       }
+//   } else {
+//       triCtx.beginPath();
+//       triCtx.moveTo(x, y);
+//   }
+// });
 
 triCanvas.addEventListener('mousemove', function(e) {
   let rect = triCanvas.getBoundingClientRect();
@@ -119,7 +115,7 @@ triCanvas.addEventListener('mousemove', function(e) {
       point.x = x;
       point.y = y;
       draw();
-  } else if (!draggable && isDrawing) {
+  } else if (!draggable) {
       triCtx.lineTo(x, y);
       triCtx.stroke();
   }
@@ -136,7 +132,48 @@ triCanvas.addEventListener('mouseup', function(e) {
 
         point.isDragging = false;
         draw();
-    } else if (!draggable && isDrawing) {
-        isDrawing = false;
     }
 });
+
+
+// ===================== drawレイヤーの処理 =====================
+
+const drawCanvas = document.getElementById('drawingCanvas');
+const drawCtx = drawCanvas.getContext('2d');
+
+
+let isDrawing = false;
+let isEraser = false;
+let lastX, lastY;
+
+document.getElementById('toggleEraser').addEventListener('click', function() {
+  isEraser = !isEraser;
+  this.innerText = isEraser ? 'ペンモード' : '消しゴムモード';
+});
+
+drawCanvas.addEventListener('mousedown', function(e) {
+  isDrawing = true;
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+});
+
+drawCanvas.addEventListener('mousemove', userDraws);
+drawCanvas.addEventListener('mouseup', () => isDrawing = false);
+drawCanvas.addEventListener('mouseout', () => isDrawing = false);
+
+function userDraws(e) {
+  if(!isDrawing) return;
+  drawCtx.lineWidth = isEraser ? 10 : 5;
+  drawCtx.lineCap = 'round';
+  drawCtx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
+  
+  drawCtx.beginPath();
+  drawCtx.moveTo(lastX, lastY);
+  drawCtx.lineTo(e.offsetX, e.offsetY);
+  drawCtx.stroke();
+
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+}
+
+
+
+
