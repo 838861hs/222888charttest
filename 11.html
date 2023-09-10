@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    margin: 0;
+  }
+  #canvasContainer {
+    position: relative;
+    border: 1px solid #000;
+    width: 800px;
+    height: 600px;
+  }
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+</style>
+</head>
+<body>
+
+<button id="toggleEraser">消しゴムモード</button>
+<button id="toggleMode">背景編集モード</button>
+<div id="canvasContainer">
+  <canvas id="backgroundCanvas" width="800" height="600"></canvas>
+  <canvas id="triangleCanvas" width="800" height="600"></canvas>
+  <canvas id="drawingCanvas" width="800" height="600"></canvas>
+</div>
+
+
+<script src="11.js"></script>
+
+</body>
+</html>
