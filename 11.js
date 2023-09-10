@@ -1,8 +1,8 @@
-//グリッドを描画
+// ===================== グリッドを描画 =====================
 const bgCanvas = document.getElementById('backgroundCanvas');
 const bgCtx = bgCanvas.getContext('2d');
-
 const gridSize = 30;
+
 function drawGrid() {
   bgCtx.strokeStyle = "#e0e0e0";
   bgCtx.lineWidth = 1;
@@ -19,12 +19,124 @@ function drawGrid() {
       bgCtx.stroke();
   }
 }
-drawGrid();
 
 
-//三角形を描画
-const triangleCanvas = document.getElementById('triangleCanvas');
-const triangleContext = triangleCanvas.getContext('2d');
-//絵を描画
-const drawingCanvas = document.getElementById('drawingCanvas');
-const drawingContext = drawingCanvas.getContext('2d');
+
+// ===================== 三角形を初期位置描画 =====================
+const triCanvas = document.getElementById('triangleCanvas');
+const triCtx = triCanvas.getContext('2d');
+let draggable = true;
+let staticTriangles = [];
+let staticTriangle = null;
+let isDrawing = false;
+const blueLineStartX = Math.floor(bgCanvas.width / 2 / gridSize - 3) * gridSize;
+const blueLineEndX = blueLineStartX + 6 * gridSize;
+const blueLineY = bgCanvas.height / 2 + 2 * gridSize;
+const point = {
+  x: blueLineStartX + 3 * gridSize,
+  y: blueLineY - 2 * gridSize,
+  radius: 5,
+  isDragging: false
+};
+
+function drawDynamicTriangle() {
+  triCtx.fillStyle = 'rgba(0, 173, 239, 0.5)';
+  triCtx.beginPath();
+  triCtx.moveTo(blueLineStartX, blueLineY);
+  triCtx.lineTo(blueLineEndX, blueLineY);
+  triCtx.lineTo(point.x, point.y);
+  triCtx.closePath();
+  triCtx.fill();
+}
+
+function drawStaticTriangles() {
+  triCtx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+  for (let triangle of staticTriangles) {
+      triCtx.beginPath();
+      triCtx.moveTo(blueLineStartX, blueLineY);
+      triCtx.lineTo(blueLineEndX, blueLineY);
+      triCtx.lineTo(triangle.x, triangle.y);
+      triCtx.closePath();
+      triCtx.fill();
+  }
+}
+
+function drawBlueLine() {
+  bgCtx.strokeStyle = "#0000FF";
+  bgCtx.lineWidth = 2;
+  bgCtx.beginPath();
+  bgCtx.moveTo(blueLineStartX, blueLineY);
+  bgCtx.lineTo(blueLineEndX, blueLineY);
+  bgCtx.stroke();
+}
+
+function drawDraggablePoint() {
+  triCtx.fillStyle = "#FF0000";
+  triCtx.beginPath();
+  triCtx.arc(point.x, point.y, point.radius, 0, 2 * Math.PI);
+  triCtx.fill();
+}
+
+function drawBackground() {
+  triCtx.clearRect(0, 0, triCanvas.width, triCanvas.height);
+  drawGrid();
+  drawBlueLine();
+  drawStaticTriangles();
+  drawDynamicTriangle();
+  drawDraggablePoint();
+}
+
+//再描画する時に呼び出す関数。
+function draw(){
+  drawBackground();
+}
+draw();
+// ===================== イベントリスナー =====================
+triCanvas.addEventListener('mousedown', function(e) {
+  let rect = triCanvas.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let y = e.clientY - rect.top;
+
+  if (draggable) {
+      let dx = point.x - x;
+      let dy = point.y - y;
+      if (dx * dx + dy * dy <= point.radius * point.radius) {
+          point.isDragging = true;
+      }
+  } else {
+      triCtx.beginPath();
+      triCtx.moveTo(x, y);
+      isDrawing = true;
+  }
+});
+
+triCanvas.addEventListener('mousemove', function(e) {
+  let rect = triCanvas.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let y = e.clientY - rect.top;
+
+  if (point.isDragging && draggable) {
+      point.x = x;
+      point.y = y;
+      draw();
+  } else if (!draggable && isDrawing) {
+      triCtx.lineTo(x, y);
+      triCtx.stroke();
+  }
+});
+
+triCanvas.addEventListener('mouseup', function(e) {
+    if (point.isDragging && draggable) {
+        point.x = Math.round(point.x / gridSize) * gridSize;
+        point.y = Math.round(point.y / gridSize) * gridSize;
+
+        if (Math.abs(point.y - blueLineY) === 4 * gridSize) {
+            staticTriangles.push({ x: point.x, y: point.y });
+        }
+
+        point.isDragging = false;
+        draw();
+    } else if (!draggable && isDrawing) {
+        isDrawing = false;
+    }
+});
