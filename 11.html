@@ -16,6 +16,19 @@
     top: 0;
     left: 0;
   }
+  #backgroundCanvas {
+    z-index: 0;
+  }
+  #triangleCanvas,
+  #drawingCanvas {
+    z-index: 1;
+  }
+  #triangleCanvas.active{
+    z-index: 10;
+  }
+  #drawingCanvas.active{
+    z-index: 10;
+  }
 </style>
 </head>
 <body>
@@ -24,8 +37,8 @@
 <button id="toggleMode">背景編集モード</button>
 <div id="canvasContainer">
   <canvas id="backgroundCanvas" width="800" height="600"></canvas>
-  <canvas id="triangleCanvas" width="800" height="600"></canvas>
-  <canvas id="drawingCanvas" width="800" height="600"></canvas>
+  <canvas id="triangleCanvas" class="active" width="800" height="600"></canvas>
+  <canvas id="drawingCanvas" class="active" width="800" height="600"></canvas>
 </div>
 
 

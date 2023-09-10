@@ -89,22 +89,22 @@ function draw(){
 }
 draw();
 // ===================== イベントリスナー =====================
-// triCanvas.addEventListener('mousedown', function(e) {
-//   let rect = triCanvas.getBoundingClientRect();
-//   let x = e.clientX - rect.left;
-//   let y = e.clientY - rect.top;
+triCanvas.addEventListener('mousedown', function(e) {
+  let rect = triCanvas.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let y = e.clientY - rect.top;
 
-//   if (draggable) {
-//       let dx = point.x - x;
-//       let dy = point.y - y;
-//       if (dx * dx + dy * dy <= point.radius * point.radius) {
-//           point.isDragging = true;
-//       }
-//   } else {
-//       triCtx.beginPath();
-//       triCtx.moveTo(x, y);
-//   }
-// });
+  if (draggable) {
+      let dx = point.x - x;
+      let dy = point.y - y;
+      if (dx * dx + dy * dy <= point.radius * point.radius) {
+          point.isDragging = true;
+      }
+  } else {
+      triCtx.beginPath();
+      triCtx.moveTo(x, y);
+  }
+});
 
 triCanvas.addEventListener('mousemove', function(e) {
   let rect = triCanvas.getBoundingClientRect();
