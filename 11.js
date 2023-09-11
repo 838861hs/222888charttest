@@ -87,7 +87,7 @@ function drawBackground() {
 function draw(){
   drawBackground();
 }
-draw();
+
 // ===================== イベントリスナー =====================
 triCanvas.addEventListener('mousedown', function(e) {
   let rect = triCanvas.getBoundingClientRect();
@@ -147,8 +147,8 @@ let isEraser = false;
 let lastX, lastY;
 
 document.getElementById('toggleEraser').addEventListener('click', function() {
+  this.classList.toggle('active');
   isEraser = !isEraser;
-  this.innerText = isEraser ? 'ペンモード' : '消しゴムモード';
 });
 
 drawCanvas.addEventListener('mousedown', function(e) {
@@ -162,7 +162,7 @@ drawCanvas.addEventListener('mouseout', () => isDrawing = false);
 
 function userDraws(e) {
   if(!isDrawing) return;
-  drawCtx.lineWidth = isEraser ? 10 : 5;
+  drawCtx.lineWidth = isEraser ? 30 : 5;
   drawCtx.lineCap = 'round';
   drawCtx.globalCompositeOperation = isEraser ? 'destination-out' : 'source-over';
   
@@ -173,7 +173,22 @@ function userDraws(e) {
 
   [lastX, lastY] = [e.offsetX, e.offsetY];
 }
+// ===================== レイヤー切替処理 =====================
 
 
+toggleMode.addEventListener('click',function(){
 
+  this.classList.toggle('active');
+  if(triCanvas.classList.contains('active')){
+    triCanvas.classList.remove('active');
+    drawCanvas.classList.add('active');
+    console.log(isEraser)
+  } else {
+    drawCanvas.classList.remove('active');
+    triCanvas.classList.add('active');
+  }
+})
 
+// ===================== 初期描画 =====================
+
+draw();

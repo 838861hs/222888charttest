@@ -29,16 +29,24 @@
   #drawingCanvas.active{
     z-index: 10;
   }
+  #toggleMode,
+  #toggleEraser  {
+    opacity: 0.5;
+  }
+  #toggleMode.active,
+  #toggleEraser.active  {
+    opacity: 1;
+  }
 </style>
 </head>
 <body>
 
-<button id="toggleEraser">消しゴムモード</button>
-<button id="toggleMode">背景編集モード</button>
+<button id="toggleEraser">消しゴム</button>
+<button id="toggleMode">絵を描く</button>
 <div id="canvasContainer">
   <canvas id="backgroundCanvas" width="800" height="600"></canvas>
   <canvas id="triangleCanvas" class="active" width="800" height="600"></canvas>
-  <canvas id="drawingCanvas" class="active" width="800" height="600"></canvas>
+  <canvas id="drawingCanvas" class="" width="800" height="600"></canvas>
 </div>
 
 
