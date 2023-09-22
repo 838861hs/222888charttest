@@ -131,6 +131,8 @@ function showMagnifier(e) {
   ctx.beginPath();
   ctx.arc(e.offsetX, e.offsetY, magnifierRadius, 0, 2 * Math.PI);
   ctx.clip();
+  ctx.fillStyle = 'white';
+  ctx.fillRect(e.offsetX - magnifierRadius, e.offsetY - magnifierRadius, magnifierRadius * 2, magnifierRadius * 2);
   ctx.drawImage(
       magnifierCanvas,
       0,
