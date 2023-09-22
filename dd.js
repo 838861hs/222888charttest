@@ -150,6 +150,25 @@ canvas.addEventListener('mousedown', function(e) {
     }
 });
 
+canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault(); // Prevents scrolling when touching the canvas
+    let rect = canvas.getBoundingClientRect();
+    let x = e.touches[0].clientX - rect.left;
+    let y = e.touches[0].clientY - rect.top;
+
+    if (draggable) {
+        let dx = point.x - x;
+        let dy = point.y - y;
+        if (dx * dx + dy * dy <= point.radius * point.radius) {
+            point.isDragging = true;
+        }
+    } else {
+        offscreenCtx.beginPath();
+        offscreenCtx.moveTo(x, y);
+        isDrawing = true;
+    }
+});
+
 canvas.addEventListener('mousemove', function(e) {
     let rect = canvas.getBoundingClientRect();
     let x = e.clientX - rect.left;
@@ -165,8 +184,43 @@ canvas.addEventListener('mousemove', function(e) {
         drawUserArt();
     }
 });
+canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault(); // Prevents scrolling when touching the canvas
+    let rect = canvas.getBoundingClientRect();
+    let x = e.touches[0].clientX - rect.left;
+    let y = e.touches[0].clientY - rect.top;
+
+    if (point.isDragging && draggable) {
+        point.x = x;
+        point.y = y;
+        draw();
+    } else if (!draggable && isDrawing) {
+        offscreenCtx.lineTo(x, y);
+        offscreenCtx.stroke();
+        drawUserArt();
+    }
+});
+
 
 canvas.addEventListener('mouseup', function(e) {
+    if (point.isDragging && draggable) {
+        point.x = Math.round(point.x / gridSize) * gridSize;
+        point.y = Math.round(point.y / gridSize) * gridSize;
+
+        if (Math.abs(point.y - blueLineY) === 4 * gridSize) {
+            staticTriangles.push({ x: point.x, y: point.y });
+        }
+
+        point.isDragging = false;
+        draw();
+    } else if (!draggable && isDrawing) {
+        isDrawing = false;
+    }
+});
+
+canvas.addEventListener('touchend', function(e) {
+    e.preventDefault(); // Prevents unintended behaviors when touching the canvas
+
     if (point.isDragging && draggable) {
         point.x = Math.round(point.x / gridSize) * gridSize;
         point.y = Math.round(point.y / gridSize) * gridSize;
