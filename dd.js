@@ -132,10 +132,18 @@ const resetDrawnArtBtn = createButton("書いた絵をリセット", resetDrawnA
 
 // ===================== イベントリスナー =====================
 
-canvas.addEventListener('mousedown', function(e) {
+function handleStartEvent(e) {
+    e.preventDefault(); // Prevents unintended behaviors when touching or mousing down on the canvas
     let rect = canvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
+    let x, y;
+    
+    if (e.type === 'touchstart') {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+    } else {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+    }
 
     if (draggable) {
         let dx = point.x - x;
@@ -148,31 +156,24 @@ canvas.addEventListener('mousedown', function(e) {
         offscreenCtx.moveTo(x, y);
         isDrawing = true;
     }
-});
+}
 
-canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault(); // Prevents scrolling when touching the canvas
+canvas.addEventListener('mousedown', handleStartEvent);
+canvas.addEventListener('touchstart', handleStartEvent);
+
+
+function handleMoveEvent(e) {
+    e.preventDefault(); // Prevents unintended behaviors when touching or mousing over on the canvas
     let rect = canvas.getBoundingClientRect();
-    let x = e.touches[0].clientX - rect.left;
-    let y = e.touches[0].clientY - rect.top;
-
-    if (draggable) {
-        let dx = point.x - x;
-        let dy = point.y - y;
-        if (dx * dx + dy * dy <= point.radius * point.radius) {
-            point.isDragging = true;
-        }
+    let x, y;
+    
+    if (e.type === 'touchmove') {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
     } else {
-        offscreenCtx.beginPath();
-        offscreenCtx.moveTo(x, y);
-        isDrawing = true;
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
     }
-});
-
-canvas.addEventListener('mousemove', function(e) {
-    let rect = canvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
 
     if (point.isDragging && draggable) {
         point.x = x;
@@ -183,43 +184,15 @@ canvas.addEventListener('mousemove', function(e) {
         offscreenCtx.stroke();
         drawUserArt();
     }
-});
-canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault(); // Prevents scrolling when touching the canvas
-    let rect = canvas.getBoundingClientRect();
-    let x = e.touches[0].clientX - rect.left;
-    let y = e.touches[0].clientY - rect.top;
+}
 
-    if (point.isDragging && draggable) {
-        point.x = x;
-        point.y = y;
-        draw();
-    } else if (!draggable && isDrawing) {
-        offscreenCtx.lineTo(x, y);
-        offscreenCtx.stroke();
-        drawUserArt();
-    }
-});
+canvas.addEventListener('mousemove', handleMoveEvent);
+canvas.addEventListener('touchmove', handleMoveEvent);
 
 
-canvas.addEventListener('mouseup', function(e) {
-    if (point.isDragging && draggable) {
-        point.x = Math.round(point.x / gridSize) * gridSize;
-        point.y = Math.round(point.y / gridSize) * gridSize;
 
-        if (Math.abs(point.y - blueLineY) === 4 * gridSize) {
-            staticTriangles.push({ x: point.x, y: point.y });
-        }
-
-        point.isDragging = false;
-        draw();
-    } else if (!draggable && isDrawing) {
-        isDrawing = false;
-    }
-});
-
-canvas.addEventListener('touchend', function(e) {
-    e.preventDefault(); // Prevents unintended behaviors when touching the canvas
+function handleEndEvent(e) {
+    e.preventDefault(); // Prevents unintended behaviors when releasing touch or mouse
 
     if (point.isDragging && draggable) {
         point.x = Math.round(point.x / gridSize) * gridSize;
@@ -234,8 +207,10 @@ canvas.addEventListener('touchend', function(e) {
     } else if (!draggable && isDrawing) {
         isDrawing = false;
     }
-});
+}
 
+canvas.addEventListener('mouseup', handleEndEvent);
+canvas.addEventListener('touchend', handleEndEvent);
 // ===================== 初期描画 =====================
 
 draw();
