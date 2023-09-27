@@ -175,6 +175,102 @@ document.getElementById('resetButton').addEventListener('click', () => {
     drawGrid();
 });
 
+
+function drawH(x, y) {
+  const width = 2 * step; // 2マス分の太さ
+  const height = 8 * step; // Hの高さを8マス分としています。
+
+  ctx.lineWidth = 3; // 縁取りの太さを2pxに設定
+  ctx.strokeStyle = '#000000'; // 縁取りの色を黒に設定
+
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x, y + height);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(5*step, 12*step)
+  ctx.lineTo(7*step, 12*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(7*step, 12*step)
+  ctx.lineTo(7*step, 9*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(7*step, 9*step)
+  ctx.lineTo(11*step, 9*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(11*step, 9*step)
+  ctx.lineTo(11*step, 12*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(11*step, 9*step)
+  ctx.lineTo(11*step, 12*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(11*step, 12*step)
+  ctx.lineTo(13*step, 12*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(13*step, 12*step)
+  ctx.lineTo(13*step, 4*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(13*step, 4*step)
+  ctx.lineTo(11*step, 4*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(11*step, 4*step)
+  ctx.lineTo(11*step, 7*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(11*step, 7*step)
+  ctx.lineTo(7*step, 7*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(7*step, 7*step)
+  ctx.lineTo(7*step, 4*step)
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(7*step, 4*step)
+  ctx.lineTo(5*step, 4*step)
+  ctx.stroke();
+
+
+  // 中央の横線
+  // ctx.beginPath();
+  // ctx.moveTo(x, y + 3.5 * step);
+  // ctx.lineTo(x + 5 * width, y + 3.5 * step);
+  // ctx.stroke();
+
+  // 右の縦線
+  // ctx.beginPath();
+  // ctx.moveTo(x + 4 * width, y);
+  // ctx.lineTo(x + 4 * width, y + height);
+  // ctx.moveTo(x + 4 * width + width, y);
+  // ctx.lineTo(x + 4 * width + width, y + height);
+  // ctx.stroke();
+}
+
+const gridCenterX = Math.floor(canvas.width / step / 2) * step;
+const gridCenterY = Math.floor(canvas.height / step / 2) * step;
+
+// 中央の交差点を基にして「H」を描画
+drawH(gridCenterX - 3 * step, gridCenterY - 4 * step);
+
+
 canvas.addEventListener('mousedown', handleStart);
 canvas.addEventListener('touchstart', handleStart);
 canvas.addEventListener('mousemove', handleMove);
