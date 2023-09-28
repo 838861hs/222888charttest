@@ -63,16 +63,19 @@ function handleStart(e) {
 
     isDrawing = true;
     const closestPoint = getClosestGridPoint(e.offsetX, e.offsetY);
-    if (lastDropPoint.x !== 0 || lastDropPoint.y !== 0) {
-        startX = lastDropPoint.x;
-        startY = lastDropPoint.y;
-    } else {
-        startX = closestPoint.x;
-        startY = closestPoint.y;
-    }
+    startX = closestPoint.x;
+    startY = closestPoint.y;
 }
 
 
+
+function drawLine(e) {
+    const currentClosestPoint = getClosestGridPoint(e.offsetX, e.offsetY);
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(currentClosestPoint.x, currentClosestPoint.y);
+    ctx.stroke();
+}
 function handleMove(e) {
   // タッチイベントの場合、最初のタッチポイントの座標を取得
   if (e.type === 'touchmove') {
@@ -92,60 +95,6 @@ function handleMove(e) {
     showMagnifier(e);
   }
 }
-function drawLine(e) {
-  const closestPoint = getClosestGridPoint(e.offsetX, e.offsetY);
-  ctx.beginPath();
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 2;
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(closestPoint.x, closestPoint.y);
-  ctx.stroke();
-}
-function showMagnifier(e) {
-  const magnifierRadius = 100;
-  const magnification = 2;
-
-  const sourceX = e.offsetX - magnifierRadius / magnification;
-  const sourceY = e.offsetY - magnifierRadius / magnification;
-  const sourceWidth = magnifierRadius * 2 / magnification;
-  const sourceHeight = magnifierRadius * 2 / magnification;
-
-  const magnifierCanvas = document.createElement('canvas');
-  const magnifierCtx = magnifierCanvas.getContext('2d');
-  magnifierCanvas.width = sourceWidth;
-  magnifierCanvas.height = sourceHeight;
-
-  magnifierCtx.drawImage(
-      canvas,
-      sourceX,
-      sourceY,
-      sourceWidth,
-      sourceHeight,
-      0,
-      0,
-      sourceWidth,
-      sourceHeight
-  );
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(e.offsetX, e.offsetY, magnifierRadius, 0, 2 * Math.PI);
-  ctx.clip();
-  ctx.fillStyle = 'white';
-  ctx.fillRect(e.offsetX - magnifierRadius, e.offsetY - magnifierRadius, magnifierRadius * 2, magnifierRadius * 2);
-  ctx.drawImage(
-      magnifierCanvas,
-      0,
-      0,
-      sourceWidth,
-      sourceHeight,
-      e.offsetX - magnifierRadius,
-      e.offsetY - magnifierRadius,
-      sourceWidth * magnification,
-      sourceHeight * magnification
-  );
-  ctx.restore();
-}
 
 
 function handleEnd(e) {
@@ -164,7 +113,7 @@ function handleEnd(e) {
       drawGrid();
       drawLines();
       isDrawing = false;
-      lastDropPoint = closestPoint;
+      
   }
 }
 
@@ -267,8 +216,7 @@ function drawH(x, y) {
 const gridCenterX = Math.floor(canvas.width / step / 2) * step;
 const gridCenterY = Math.floor(canvas.height / step / 2) * step;
 
-// 中央の交差点を基にして「H」を描画
-drawH(gridCenterX - 3 * step, gridCenterY - 4 * step);
+
 
 
 canvas.addEventListener('mousedown', handleStart);
@@ -278,3 +226,5 @@ canvas.addEventListener('touchmove', handleMove);
 canvas.addEventListener('mouseup', handleEnd);
 canvas.addEventListener('touchend', handleEnd);
 drawGrid();
+// 中央の交差点を基にして「H」を描画
+drawH(gridCenterX - 3 * step, gridCenterY - 4 * step);
