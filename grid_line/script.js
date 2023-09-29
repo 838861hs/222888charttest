@@ -1,4 +1,6 @@
+const bgCanvas = document.getElementById('bgCanvas');
 const canvas = document.getElementById('myCanvas');
+const bgCtx = bgCanvas.getContext('2d');
 const ctx = canvas.getContext('2d');
 const step = 30;
 
@@ -7,21 +9,21 @@ let lines = [];
 let isMagnifierOn = false;
 
 function drawGrid() {
-  ctx.strokeStyle = '#e0e0e0';
-  ctx.lineWidth = 1;
+  bgCtx.strokeStyle = '#e0e0e0';
+  bgCtx.lineWidth = 1;
 
   for (let x = 0; x <= canvas.width; x += step) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
-      ctx.stroke();
+      bgCtx.beginPath();
+      bgCtx.moveTo(x, 0);
+      bgCtx.lineTo(x, canvas.height);
+      bgCtx.stroke();
   }
 
   for (let y = 0; y <= canvas.height; y += step) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
-      ctx.stroke();
+      bgCtx.beginPath();
+      bgCtx.moveTo(0, y);
+      bgCtx.lineTo(canvas.width, y);
+      bgCtx.stroke();
   }
 }
 
@@ -86,7 +88,6 @@ function handleMove(e) {
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawGrid();
   drawLines();
 
   if (isDrawing === true) {
@@ -110,7 +111,6 @@ function handleEnd(e) {
       const closestPoint = getClosestGridPoint(e.offsetX, e.offsetY);
       lines.push({ startX: startX, startY: startY, endX: closestPoint.x, endY: closestPoint.y });
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawGrid();
       drawLines();
       isDrawing = false;
       
@@ -121,7 +121,6 @@ document.getElementById('resetButton').addEventListener('click', () => {
     lines = [];
     lastDropPoint = { x: 0, y: 0 };
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid();
 });
 
 
@@ -129,73 +128,73 @@ function drawH(x, y) {
   const width = 2 * step; // 2マス分の太さ
   const height = 8 * step; // Hの高さを8マス分としています。
 
-  ctx.lineWidth = 3; // 縁取りの太さを2pxに設定
-  ctx.strokeStyle = '#000000'; // 縁取りの色を黒に設定
+  bgCtx.lineWidth = 3; // 縁取りの太さを2pxに設定
+  bgCtx.strokeStyle = '#000000'; // 縁取りの色を黒に設定
 
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x, y + height);
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(x, y);
+  bgCtx.lineTo(x, y + height);
+  bgCtx.stroke();
   
-  ctx.beginPath();
-  ctx.moveTo(5*step, 12*step)
-  ctx.lineTo(7*step, 12*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(5*step, 12*step)
+  bgCtx.lineTo(7*step, 12*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(7*step, 12*step)
-  ctx.lineTo(7*step, 9*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(7*step, 12*step)
+  bgCtx.lineTo(7*step, 9*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(7*step, 9*step)
-  ctx.lineTo(11*step, 9*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(7*step, 9*step)
+  bgCtx.lineTo(11*step, 9*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(11*step, 9*step)
-  ctx.lineTo(11*step, 12*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(11*step, 9*step)
+  bgCtx.lineTo(11*step, 12*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(11*step, 9*step)
-  ctx.lineTo(11*step, 12*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(11*step, 9*step)
+  bgCtx.lineTo(11*step, 12*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(11*step, 12*step)
-  ctx.lineTo(13*step, 12*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(11*step, 12*step)
+  bgCtx.lineTo(13*step, 12*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(13*step, 12*step)
-  ctx.lineTo(13*step, 4*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(13*step, 12*step)
+  bgCtx.lineTo(13*step, 4*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(13*step, 4*step)
-  ctx.lineTo(11*step, 4*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(13*step, 4*step)
+  bgCtx.lineTo(11*step, 4*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(11*step, 4*step)
-  ctx.lineTo(11*step, 7*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(11*step, 4*step)
+  bgCtx.lineTo(11*step, 7*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(11*step, 7*step)
-  ctx.lineTo(7*step, 7*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(11*step, 7*step)
+  bgCtx.lineTo(7*step, 7*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(7*step, 7*step)
-  ctx.lineTo(7*step, 4*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(7*step, 7*step)
+  bgCtx.lineTo(7*step, 4*step)
+  bgCtx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(7*step, 4*step)
-  ctx.lineTo(5*step, 4*step)
-  ctx.stroke();
+  bgCtx.beginPath();
+  bgCtx.moveTo(7*step, 4*step)
+  bgCtx.lineTo(5*step, 4*step)
+  bgCtx.stroke();
 
 
   // 中央の横線
