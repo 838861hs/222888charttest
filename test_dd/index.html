@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+
+<div id="draggable1" class="draggable">Draggable 1</div>
+<div id="draggable2" class="draggable">Draggable 2</div>
+<div id="draggable3" class="draggable">Draggable 3</div>
+<div id="draggable4" class="draggable">Draggable 4</div>
+
+<div id="droppable1" class="droppable">Droppable 1</div>
+<div id="droppable2" class="droppable">Droppable 2</div>
+<div id="droppable3" class="droppable">Droppable 3</div>
+<div id="droppable4" class="droppable">Droppable 4</div>
+
+<script>
+$(function() {
+    $(".draggable").draggable({
+        helper: 'clone',
+        revert: function(droppableObj) {
+            if (droppableObj && $(droppableObj).children('.clonedElement').length === 0) {
+                return false;
+            }
+            return true;
+        },
+        revert: 'invalid',
+        snap: ".droppable",
+        snapMode: "inner"
+    });
+
+    $(".droppable").droppable({
+        accept: ".draggable, .clonedElement",
+        drop: function(event, ui) {
+          let numberOfElements = $(this).children('.clonedElement').length;
+
+          if (numberOfElements > 0) {
+                return;
+            }
+
+            if (ui.draggable.hasClass('clonedElement')) {
+                ui.draggable.position({
+                    of: $(this),
+                    my: "left top",
+                    at: "left top"
+                });
+            } else {
+                var clonedElement = ui.helper.clone().removeClass('ui-draggable-dragging').addClass('clonedElement');
+                $(this).append(clonedElement);
+                makeDraggable(clonedElement);
+            }
+        }
+    });
+
+    function makeDraggable(element) {
+        element.draggable({
+            revert: 'invalid',
+            snap: ".droppable",
+            snapMode: "inner"
+        });
+    }
+});
+
+</script>
+
+<style>
+.draggable, .droppable {
+    width: 100px;
+    height: 100px;
+    margin: 10px;
+    border: 1px solid black;
+    float: left;
+}
+
+.droppable {
+    background-color: #f5f5f5;
+}
+</style>
+
+</body>
+</html>
