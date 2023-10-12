@@ -32,7 +32,14 @@ $(function() {
         },
         revert: 'invalid',
         snap: ".droppable",
-        snapMode: "inner"
+        
+snapMode: "inner",
+start: function(event, ui) {
+    let droppableWidth = $(".droppable").width();
+    let droppableHeight = $(".droppable").height();
+    ui.helper.css({"width": droppableWidth, "height": droppableHeight});
+}
+
     });
 
     $(".droppable").droppable({
@@ -76,6 +83,10 @@ $(function() {
     margin: 10px;
     border: 1px solid black;
     float: left;
+}
+.draggable{
+    width: 200px;
+    height: 200px;
 }
 
 .droppable {
