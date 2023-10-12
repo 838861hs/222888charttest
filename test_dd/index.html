@@ -1,25 +1,29 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drag and Drop</title>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Drag and Drop</title>
+<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
-
-<div id="draggable1" class="draggable">Draggable 1</div>
-<div id="draggable2" class="draggable">Draggable 2</div>
-<div id="draggable3" class="draggable">Draggable 3</div>
-<div id="draggable4" class="draggable">Draggable 4</div>
-
-<div id="droppable1" class="droppable">Droppable 1</div>
-<div id="droppable2" class="droppable">Droppable 2</div>
-<div id="droppable3" class="droppable">Droppable 3</div>
-<div id="droppable4" class="droppable">Droppable 4</div>
-
+<div class="wrapper">
+<div class="draggableWrap">
+<div class="draggable" id="draggable1">Draggable 1</div>
+<div class="draggable" id="draggable2">Draggable 2</div>
+<div class="draggable" id="draggable3">Draggable 3</div>
+<div class="draggable" id="draggable4">Draggable 4</div>
+</div>
+<div class="droppableWrap">
+<div class="droppable" id="droppable1">Droppable 1</div>
+<div class="droppable" id="droppable2">Droppable 2</div>
+<div class="droppable" id="droppable3">Droppable 3</div>
+<div class="droppable" id="droppable4">Droppable 4</div>
+</div>
+</div>
 <script>
 $(function() {
     $(".draggable").draggable({
@@ -74,15 +78,31 @@ start: function(event, ui) {
     }
 });
 
-</script>
 
+$(window).resize(function() {
+    $('.clonedElement').each(function() {
+        var parent = $(this).parent();
+        $(this).position({
+            of: parent,
+            my: 'left top',
+            at: 'left top'
+        });
+    });
+});
+</script>
 <style>
+    .wrapper {
+        display: flex;
+    }
+    .draggableWrap, .droppableWrap {
+        display: flex;
+    }
+
 .draggable, .droppable {
     width: 100px;
     height: 100px;
     margin: 10px;
     border: 1px solid black;
-    float: left;
 }
 .draggable{
     width: 200px;
@@ -93,6 +113,5 @@ start: function(event, ui) {
     background-color: #f5f5f5;
 }
 </style>
-
 </body>
 </html>
