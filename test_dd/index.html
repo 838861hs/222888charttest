@@ -25,69 +25,35 @@
 </div>
 </div>
 <script>
-$(function() {
-    $(".draggable").draggable({
-        helper: 'clone',
-        revert: function(droppableObj) {
-            if (droppableObj && $(droppableObj).children('.clonedElement').length === 0) {
-                return false;
+$(".droppable").droppable({
+    accept: ".draggable",
+    drop: function(event, ui) {
+        var draggable = $(ui.draggable).clone().css('width', $(this).width()).css('height', $(this).height());
+        draggable.appendTo($(this)).position({
+            of: $(this),
+            my: 'left top',
+            at: 'left top'
+        }).draggable({
+            revert: "invalid",
+            opacity: 0.7,
+            helper: "clone",
+            start: function(event, ui) {
+                $(ui.helper).css('width', $('.droppable').width()).css('height', $('.droppable').height());
             }
-            return true;
-        },
-        revert: 'invalid',
-        snap: ".droppable",
-        
-snapMode: "inner",
-start: function(event, ui) {
-    let droppableWidth = $(".droppable").width();
-    let droppableHeight = $(".droppable").height();
-    ui.helper.css({"width": droppableWidth, "height": droppableHeight});
-}
-
-    });
-
-    $(".droppable").droppable({
-        accept: ".draggable, .clonedElement",
-        drop: function(event, ui) {
-          let numberOfElements = $(this).children('.clonedElement').length;
-
-          if (numberOfElements > 0) {
-                return;
-            }
-
-            if (ui.draggable.hasClass('clonedElement')) {
-                ui.draggable.position({
-                    of: $(this),
-                    my: "left top",
-                    at: "left top"
-                });
-            } else {
-                var clonedElement = ui.helper.clone().removeClass('ui-draggable-dragging').addClass('clonedElement');
-                $(this).append(clonedElement);
-                makeDraggable(clonedElement);
-            }
-        }
-    });
-
-    function makeDraggable(element) {
-        element.draggable({
-            revert: 'invalid',
-            snap: ".droppable",
-            snapMode: "inner"
+        });
+        $(".droppable").not(this).each(function() {
+            $(this).children(".draggable").remove();
         });
     }
 });
 
-
-$(window).resize(function() {
-    $('.clonedElement').each(function() {
-        var parent = $(this).parent();
-        $(this).position({
-            of: parent,
-            my: 'left top',
-            at: 'left top'
-        });
-    });
+$(".draggable").draggable({
+    revert: "invalid",
+    opacity: 0.7,
+    helper: "clone",
+    start: function(event, ui) {
+        $(ui.helper).css('width', $('.droppable').width()).css('height', $('.droppable').height());
+    }
 });
 </script>
 <style>
