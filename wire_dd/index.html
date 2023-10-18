@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bezier Connection Demo (Multiple Boxes)</title>
     <style>
+        .wrapper {
+            height: 100%;
+            padding: 20px;
+            margin: 40px;
+
+        }
         .wrap{
             width: 1024px;
             height: 768px;
@@ -64,12 +70,15 @@
 </head>
 
 <body>
-    <div class="wrap">
-        <div id="box1" class="box"></div>
-        <div id="box2" class="box"></div>
-        <div id="box3" class="box"></div>
-        <div id="box4" class="box"></div>
-        <div id="box5" class="box"></div>
+    <div class="wrapper">
+        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo quasi iste dolores magni odit recusandae quibusdam tempore quod illum incidunt placeat corrupti, debitis hic eveniet totam necessitatibus voluptates. Atque voluptas dicta ipsa sapiente aspernatur saepe est hic facilis, itaque velit nam aliquid ullam tempora deleniti architecto quisquam voluptatibus inventore fugit dolores animi rerum labore maxime. Dolor est accusamus soluta velit vel suscipit iusto quibusdam dolores. Sint, sed quis laborum consectetur facere ab veritatis commodi quidem ipsum explicabo? Facere magni tempore dignissimos commodi eveniet quaerat odio est? Eum quisquam doloremque ipsam ratione, iure omnis sint excepturi rem voluptatem voluptate, beatae amet.</p>
+        <div class="wrap">
+            <div id="box1" class="box"></div>
+            <div id="box2" class="box"></div>
+            <div id="box3" class="box"></div>
+            <div id="box4" class="box"></div>
+            <div id="box5" class="box"></div>
+        </div>
     </div>
 
 <svg>
@@ -92,20 +101,23 @@
     if (e.target.classList.contains('connected')) {
         // 既存の結線を削除
         const existingPath = connectedPaths[e.target.id];
-        if (existingPath) {
+        if (existingPath && document.getElementById('connectorContainer').contains(existingPath)) {
             document.getElementById('connectorContainer').removeChild(existingPath);
+            delete connectedPaths[e.target.id];
         }
 
-        // 他方のboxのconnectedクラスも削除
-        const otherElemId = existingPath.getAttribute('data-connected-to');
-        if (otherElemId) {
-            const otherElem = document.getElementById(otherElemId);
-            if (otherElem) otherElem.classList.remove('connected');
+        // Reset the connected status of both the drag source and drop target
+        if (existingPath) {
+            const connectedElemId = existingPath.getAttribute('data-connected-to');
+            if (connectedElemId) {
+                const connectedElem = document.getElementById(connectedElemId);
+                if (connectedElem) {
+                    connectedElem.classList.remove('connected');
+                    delete connectedPaths[connectedElemId];
+                }
+            }
+            e.target.classList.remove('connected');
         }
-
-        e.target.classList.remove('connected');
-        delete connectedPaths[e.target.id];
-        delete connectedPaths[otherElemId];
     }
 
     startElem = e.target;
