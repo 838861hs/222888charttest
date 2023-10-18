@@ -72,24 +72,46 @@
 <script>
     let startElem = null;
     let tempPath = null;
+    let connectedPaths = {};
 
     const path = document.getElementById('connector');
 
     function startConnection(e) {
-        e.preventDefault();
-        startElem = e.target;
+    e.preventDefault();
 
-        if (e.type === "mousedown") {
-            document.addEventListener("mousemove", drawBezier);
-            document.addEventListener("mouseup", endConnection);
-        } else if (e.type === "touchstart") {
-            document.addEventListener("touchmove", drawBezier);
-            document.addEventListener("touchend", endConnection);
+    // 既に接続済みの要素であるかの確認
+    if (e.target.classList.contains('connected')) {
+        // 既存の結線を削除
+        const existingPath = connectedPaths[e.target.id];
+        if (existingPath) {
+            document.getElementById('connectorContainer').removeChild(existingPath);
         }
 
-        tempPath = createPathElement();
-        document.getElementById('connectorContainer').appendChild(tempPath);
+        // 他方のboxのconnectedクラスも削除
+        const otherElemId = existingPath.getAttribute('data-connected-to');
+        if (otherElemId) {
+            const otherElem = document.getElementById(otherElemId);
+            if (otherElem) otherElem.classList.remove('connected');
+        }
+
+        e.target.classList.remove('connected');
+        delete connectedPaths[e.target.id];
+        delete connectedPaths[otherElemId];
     }
+
+    startElem = e.target;
+
+    if (e.type === "mousedown") {
+        document.addEventListener("mousemove", drawBezier);
+        document.addEventListener("mouseup", endConnection);
+    } else if (e.type === "touchstart") {
+        document.addEventListener("touchmove", drawBezier);
+        document.addEventListener("touchend", endConnection);
+    }
+
+    tempPath = createPathElement();
+    document.getElementById('connectorContainer').appendChild(tempPath);
+}
 
     function createPathElement() {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -132,8 +154,20 @@
 
         const endElem = document.elementFromPoint(getCoordinates(e).x, getCoordinates(e).y);
 
-        if (endElem.classList.contains('box') && endElem !== startElem) {
+        if (endElem.classList.contains('box') && 
+            endElem !== startElem && 
+            !endElem.classList.contains('connected') &&
+            !startElem.classList.contains('connected'))  {
             console.log(`Connected ${startElem.id} to ${endElem.id}`);
+        
+            startElem.classList.add('connected');
+            endElem.classList.add('connected');
+
+            tempPath.setAttribute('data-connected-from', startElem.id);
+            tempPath.setAttribute('data-connected-to', endElem.id);
+
+            connectedPaths[startElem.id] = tempPath;
+            connectedPaths[endElem.id] = tempPath;
         } else {
           document.getElementById('connectorContainer').removeChild(tempPath);
         }
