@@ -15,8 +15,8 @@
         }
 
         .box {
-            width: 100px;
-            height: 100px;
+            width: 33px;
+            height: 33px; border-radius: 50%;
             background-color: salmon;
             position: absolute;
             cursor: pointer;
@@ -136,8 +136,8 @@
         if (!startElem) return;
 
         const { x: endX, y: endY } = getCoordinates(e);
-        const startX = startElem.getBoundingClientRect().left + 50;
-        const startY = startElem.getBoundingClientRect().top + 50;
+        const startX = startElem.getBoundingClientRect().left + 16.5;
+        const startY = startElem.getBoundingClientRect().top + 16.5;
         
         const controlX = (startX + endX) / 2;
         const controlY = startY;
