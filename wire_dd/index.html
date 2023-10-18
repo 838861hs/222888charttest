@@ -88,125 +88,220 @@
 <svg id="connectorContainer"></svg>
 
 <script>
-    let startElem = null;
-    let tempPath = null;
-    let connectedPaths = {};
-
-    const path = document.getElementById('connector');
-
-    function startConnection(e) {
-    e.preventDefault();
-
-    // 既に接続済みの要素であるかの確認
-    if (e.target.classList.contains('connected')) {
-        // 既存の結線を削除
-        const existingPath = connectedPaths[e.target.id];
-        if (existingPath && document.getElementById('connectorContainer').contains(existingPath)) {
-            document.getElementById('connectorContainer').removeChild(existingPath);
-            delete connectedPaths[e.target.id];
-        }
-
-        // Reset the connected status of both the drag source and drop target
-        if (existingPath) {
-            const connectedElemId = existingPath.getAttribute('data-connected-to');
-            if (connectedElemId) {
-                const connectedElem = document.getElementById(connectedElemId);
-                if (connectedElem) {
-                    connectedElem.classList.remove('connected');
-                    delete connectedPaths[connectedElemId];
-                }
-            }
-            e.target.classList.remove('connected');
-        }
+    function connectElements(elem1, elem2) {
+        const path = createSVGLine(
+            getCenterOfElement(elem1),
+            getCenterOfElement(elem2)
+        );
+        document.getElementById('connectorContainer').appendChild(path);
+        path.setAttribute('data-connected-from', elem1.id);
+        path.setAttribute('data-connected-to', elem2.id);
+        connectedPaths[elem1.id] = path;
+        connectedPaths[elem2.id] = path;
     }
-
-    startElem = e.target;
-
-    if (e.type === "mousedown") {
-        document.addEventListener("mousemove", drawBezier);
-        document.addEventListener("mouseup", endConnection);
-    } else if (e.type === "touchstart") {
-        document.addEventListener("touchmove", drawBezier);
-        document.addEventListener("touchend", endConnection);
+    
+    function getCenterOfElement(elem) {
+        const rect = elem.getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
     }
-
-    tempPath = createPathElement();
-    document.getElementById('connectorContainer').appendChild(tempPath);
-}
-
-    function createPathElement() {
+    
+    function createSVGLine(coords1, coords2) {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('fill', 'none');
+        const d = `M${coords1.x},${coords1.y} L${coords2.x},${coords2.y}`;
+        path.setAttribute('d', d);
         path.setAttribute('stroke', 'black');
         path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
         return path;
     }
-
-    function drawBezier(e) {
+    
+        let startElem = null;
+        let tempPath = null;
+        let connectedPaths = {};
+    
+        const path = document.getElementById('connector');
+    
+        function startConnection(e) {
         e.preventDefault();
-
-        if (!startElem) return;
-
-        const { x: endX, y: endY } = getCoordinates(e);
-        const startX = startElem.getBoundingClientRect().left + 16.5;
-        const startY = startElem.getBoundingClientRect().top + 16.5;
-        
-        const controlX = (startX + endX) / 2;
-        const controlY = startY;
-
-        const d = `M ${startX} ${startY} Q ${controlX} ${controlY}, ${endX} ${endY}`;
-        tempPath.setAttribute('d', d);
-    }
-
-    function getCoordinates(e) {
-        if (e.type.startsWith('touch')) {
-            if(e.changedTouches && e.changedTouches.length) {
-                return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    
+        // 既に接続済みの要素であるかの確認
+        if (e.target.classList.contains('connected')) {
+            // 既存の結線を削除
+            const existingPath = connectedPaths[e.target.id];
+            if (existingPath && document.getElementById('connectorContainer').contains(existingPath)) {
+                document.getElementById('connectorContainer').removeChild(existingPath);
+                delete connectedPaths[e.target.id];
             }
-            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    
+            // Reset the connected status of both the drag source and drop target
+            if (existingPath) {
+                const connectedElemId = existingPath.getAttribute('data-connected-to');
+                if (connectedElemId) {
+                    const connectedElem = document.getElementById(connectedElemId);
+                    if (connectedElem) {
+                        connectedElem.classList.remove('connected');
+                        delete connectedPaths[connectedElemId];
+                    }
+                }
+                e.target.classList.remove('connected');
+            }
         }
-        return { x: e.clientX, y: e.clientY };
+    
+        startElem = e.target;
+    
+        if (e.type === "mousedown") {
+            document.addEventListener("mousemove", drawBezier);
+            document.addEventListener("mouseup", endConnection);
+        } else if (e.type === "touchstart") {
+            document.addEventListener("touchmove", drawBezier);
+            document.addEventListener("touchend", endConnection);
+        }
+    
+        tempPath = createPathElement();
+        document.getElementById('connectorContainer').appendChild(tempPath);
     }
-
-    function endConnection(e) {
-        e.preventDefault();
-
-        if (!startElem) return;
-
-        const endElem = document.elementFromPoint(getCoordinates(e).x, getCoordinates(e).y);
-
-        if (endElem.classList.contains('box') && 
-            endElem !== startElem && 
-            !endElem.classList.contains('connected') &&
-            !startElem.classList.contains('connected'))  {
-            console.log(`Connected ${startElem.id} to ${endElem.id}`);
+    
+        function createPathElement() {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', 'black');
+            path.setAttribute('stroke-width', '2');
+            return path;
+        }
+    
+        function drawBezier(e) {
+            e.preventDefault();
+    
+            if (!startElem) return;
+    
+            const { x: endX, y: endY } = getCoordinates(e);
+            const startX = startElem.getBoundingClientRect().left + 16.5;
+            const startY = startElem.getBoundingClientRect().top + 16.5;
+            
+            const controlX = (startX + endX) / 2;
+            const controlY = startY;
+    
+            const d = `M ${startX} ${startY} Q ${controlX} ${controlY}, ${endX} ${endY}`;
+            tempPath.setAttribute('d', d);
+        }
+    
+        function getCoordinates(e) {
+            if (e.type.startsWith('touch')) {
+                if(e.changedTouches && e.changedTouches.length) {
+                    return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+                }
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
+    
+        function endConnection(e) {
+            e.preventDefault();
+    
+            if (!startElem) return;
+    
+            const endElem = document.elementFromPoint(getCoordinates(e).x, getCoordinates(e).y);
+    
+            if (endElem.classList.contains('box') && 
+                endElem !== startElem && 
+                !endElem.classList.contains('connected') &&
+                !startElem.classList.contains('connected'))  {
+                console.log(`Connected ${startElem.id} to ${endElem.id}`);
+            
+                startElem.classList.add('connected');
+                endElem.classList.add('connected');
+    
+                tempPath.setAttribute('data-connected-from', startElem.id);
+                tempPath.setAttribute('data-connected-to', endElem.id);
+    
+                connectedPaths[startElem.id] = tempPath;
+                connectedPaths[endElem.id] = tempPath;
+            } else {
+              document.getElementById('connectorContainer').removeChild(tempPath);
+            }
+    
+            document.removeEventListener("mousemove", drawBezier);
+            document.removeEventListener("mouseup", endConnection);
+            document.removeEventListener("touchmove", drawBezier);
+            document.removeEventListener("touchend", endConnection);
+    
+            startElem = null;
+            tempPath = null;
+        }
+    
+        document.querySelectorAll('.box').forEach(elem => {
+            elem.addEventListener('mousedown', startConnection);
+            elem.addEventListener('touchstart', startConnection);
+        });
+    
+    function initializeAutoConnection() {
+        const box1Elem = document.getElementById('box1');
+        const box2Elem = document.getElementById('box2');
         
-            startElem.classList.add('connected');
-            endElem.classList.add('connected');
-
-            tempPath.setAttribute('data-connected-from', startElem.id);
-            tempPath.setAttribute('data-connected-to', endElem.id);
-
-            connectedPaths[startElem.id] = tempPath;
-            connectedPaths[endElem.id] = tempPath;
-        } else {
-          document.getElementById('connectorContainer').removeChild(tempPath);
+        if (box1Elem && box2Elem) {
+            const path = connectElements(box1Elem, box2Elem);
+            if (path) {
+                path.setAttribute('data-connected-from', 'box1');
+                path.setAttribute('data-connected-to', 'box2');
+                box1Elem.classList.add('connected');
+                box2Elem.classList.add('connected');
+                connectedPaths['box1'] = path;
+                connectedPaths['box2'] = path;
+    
+                // Add click event listener to the auto-connected path after it's appended to the SVG container
+                setTimeout(() => {
+                    path.addEventListener('click', function() {
+                        const fromBoxId = this.getAttribute('data-connected-from');
+                        const toBoxId = this.getAttribute('data-connected-to');
+                        const fromBox = document.getElementById(fromBoxId);
+                        const toBox = document.getElementById(toBoxId);
+    
+                        if (fromBox && toBox) {
+                            fromBox.classList.remove('connected');
+                            toBox.classList.remove('connected');
+                            svgContainer.removeChild(this);
+                            delete connectedPaths[fromBoxId];
+                            delete connectedPaths[toBoxId];
+                        }
+                    });
+                }, 0);
+            }
         }
-
-        document.removeEventListener("mousemove", drawBezier);
-        document.removeEventListener("mouseup", endConnection);
-        document.removeEventListener("touchmove", drawBezier);
-        document.removeEventListener("touchend", endConnection);
-
-        startElem = null;
-        tempPath = null;
     }
-
-    document.querySelectorAll('.box').forEach(elem => {
-        elem.addEventListener('mousedown', startConnection);
-        elem.addEventListener('touchstart', startConnection);
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeAutoConnection();
     });
-</script>
+    
+    document.querySelectorAll('.box').forEach(box => {
+        box.addEventListener('click', function(e) {
+            if (e.target.classList.contains('connected')) {
+                const existingPath = connectedPaths[e.target.id];
+                if (existingPath) {
+                    document.getElementById('connectorContainer').removeChild(existingPath);
+                    delete connectedPaths[e.target.id];
+                    e.target.classList.remove('connected');
+                    
+                    const connectedElemId = existingPath.getAttribute('data-connected-to');
+                    if (connectedElemId) {
+                        const connectedElem = document.getElementById(connectedElemId);
+                        if (connectedElem) {
+                            connectedElem.classList.remove('connected');
+                            delete connectedPaths[connectedElemId];
+                        }
+                    }
+                }
+            }
+        });
+    });
+    
+    window.addEventListener('DOMContentLoaded', (event) => {
+        connectElements(document.getElementById('box1'), document.getElementById('box2'));
+    });
+    </script>
 
 </body>
 
