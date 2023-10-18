@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bezier Connection Demo (Multiple Boxes)</title>
     <style>
+        .wrap{
+            width: 1024px;
+            height: 768px;
+            border: 1px solid black;
+            position: relative;
+            margin: 0 auto;
+        }
+
         .box {
             width: 100px;
             height: 100px;
@@ -56,12 +64,13 @@
 </head>
 
 <body>
-
-<div id="box1" class="box"></div>
-<div id="box2" class="box"></div>
-<div id="box3" class="box"></div>
-<div id="box4" class="box"></div>
-<div id="box5" class="box"></div>
+    <div class="wrap">
+        <div id="box1" class="box"></div>
+        <div id="box2" class="box"></div>
+        <div id="box3" class="box"></div>
+        <div id="box4" class="box"></div>
+        <div id="box5" class="box"></div>
+    </div>
 
 <svg>
   <path id="connector" d=""></path>
