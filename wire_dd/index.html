@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bezier Connection Demo (Multiple Boxes)</title>
+    <style>
+        .box {
+            width: 100px;
+            height: 100px;
+            background-color: salmon;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        #box1 {
+            top: 50px;
+            left: 50px;
+        }
+
+        #box2 {
+            top: 250px;
+            left: 150px;
+        }
+
+        #box3 {
+            top: 150px;
+            right: 50px;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        path {
+            fill: none;
+            stroke: black;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="box1" class="box"></div>
+<div id="box2" class="box"></div>
+<div id="box3" class="box"></div>
+<svg>
+    <path id="connector" d=""></path>
+</svg>
+
+<script>
+    let startElem = null;
+    const path = document.getElementById('connector');
+
+    function startConnection(e) {
+        e.preventDefault();
+        startElem = e.target;
+
+        if (e.type === "mousedown") {
+            document.addEventListener("mousemove", drawBezier);
+            document.addEventListener("mouseup", endConnection);
+        } else if (e.type === "touchstart") {
+            document.addEventListener("touchmove", drawBezier);
+            document.addEventListener("touchend", endConnection);
+        }
+    }
+
+    function getCoordinates(e) {
+        if (e.type.startsWith('touch')) {
+            if(e.changedTouches && e.changedTouches.length) {
+                return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+            }
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function drawBezier(e) {
+        e.preventDefault();
+
+        if (!startElem) return;
+
+        const { x: endX, y: endY } = getCoordinates(e);
+        const startX = startElem.getBoundingClientRect().left + 50;
+        const startY = startElem.getBoundingClientRect().top + 50;
+
+        const controlX = (startX + endX) / 2;
+        const controlY = startY;
+
+        const d = `M ${startX} ${startY} Q ${controlX} ${controlY}, ${endX} ${endY}`;
+        path.setAttribute('d', d);
+    }
+
+    function endConnection(e) {
+        e.preventDefault();
+
+        if (!startElem) return;
+
+        const endElem = document.elementFromPoint(getCoordinates(e).x, getCoordinates(e).y);
+
+        if (endElem.classList.contains('box') && endElem !== startElem) {
+            const startX = startElem.getBoundingClientRect().left + 50;
+            const startY = startElem.getBoundingClientRect().top + 50;
+            const endX = endElem.getBoundingClientRect().left + 50;
+            const endY = endElem.getBoundingClientRect().top + 50;
+
+            const controlX = (startX + endX) / 2;
+            const controlY = startY;
+
+            const d = `M ${startX} ${startY} Q ${controlX} ${controlY}, ${endX} ${endY}`;
+            path.setAttribute('d', d);
+
+            // Log the connected boxes
+            console.log(`Connected ${startElem.id} to ${endElem.id}`);
+        } else {
+            path.setAttribute('d', "");
+        }
+
+        document.removeEventListener("mousemove", drawBezier);
+        document.removeEventListener("mouseup", endConnection);
+        document.removeEventListener("touchmove", drawBezier);
+        document.removeEventListener("touchend", endConnection);
+
+        startElem = null;
+    }
+
+    document.querySelectorAll('.box').forEach(elem => {
+        elem.addEventListener('mousedown', startConnection);
+        elem.addEventListener('touchstart', startConnection);
+    });
+</script>
+
+</body>
+
+</html>
