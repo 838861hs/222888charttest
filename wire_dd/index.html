@@ -89,7 +89,7 @@
 
 <script>
 function connectElements(elem1, elem2) {
-    const path = createSVGLine(
+    const path = createSVGCurve(  // この行を変更
         getCenterOfElement(elem1),
         getCenterOfElement(elem2)
     );
@@ -104,6 +104,22 @@ function connectElements(elem1, elem2) {
     const connectionKey = elem1.id + "-" + elem2.id;
     connectedPaths[connectionKey] = path;
     console.log("Connection created with key:", connectionKey); // キーをログに出力
+}
+
+function createSVGCurve(coords1, coords2) {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    
+    const controlX1 = (coords1.x + coords2.x) / 2;
+    const controlY1 = coords1.y;
+    const controlX2 = (coords1.x + coords2.x) / 2;
+    const controlY2 = coords2.y;
+
+    const d = `M${coords1.x},${coords1.y} C${controlX1},${controlY1} ${controlX2},${controlY2} ${coords2.x},${coords2.y}`;
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', 'black');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('fill', 'none');
+    return path;
 }
 
 function getCenterOfElement(elem) {
