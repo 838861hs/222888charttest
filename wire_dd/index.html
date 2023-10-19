@@ -302,7 +302,9 @@ function connectElements(elem1, elem2) {
                 toBox.classList.remove('connected');
             }
             
-            document.getElementById('connectorContainer').removeChild(existingPath);
+            if (existingPath && document.getElementById('connectorContainer').contains(existingPath)) {
+                document.getElementById('connectorContainer').removeChild(existingPath);
+            }
             delete connectedPaths[existingPathKey];
         }
     });
