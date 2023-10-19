@@ -7,7 +7,7 @@
     <title>Bezier Connection Demo (Multiple Boxes)</title>
     <style>
         .wrapper {
-            height: 100%;
+            height: 100vh;
             padding: 20px;
             margin: 40px;
 
@@ -125,11 +125,14 @@ function createSVGCurve(coords1, coords2) {
 
 function getCenterOfElement(elem) {
     const rect = elem.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     return {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
+        x: rect.left + rect.width / 2 + scrollLeft,
+        y: rect.top + rect.height / 2 + scrollTop
     };
 }
+
 function createSVGLine(coords1, coords2) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     const d = `M${coords1.x},${coords1.y} L${coords2.x},${coords2.y}`;
