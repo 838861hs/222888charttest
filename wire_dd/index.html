@@ -88,17 +88,19 @@
 <svg id="connectorContainer"></svg>
 
 <script>
-    function connectElements(elem1, elem2) {
-        const path = createSVGLine(
-            getCenterOfElement(elem1),
-            getCenterOfElement(elem2)
-        );
-        document.getElementById('connectorContainer').appendChild(path);
-        path.setAttribute('data-connected-from', elem1.id);
-        path.setAttribute('data-connected-to', elem2.id);
-        connectedPaths[elem1.id] = path;
-        connectedPaths[elem2.id] = path;
-    }
+function connectElements(elem1, elem2) {
+    const path = createSVGLine(
+        getCenterOfElement(elem1),
+        getCenterOfElement(elem2)
+    );
+    document.getElementById('connectorContainer').appendChild(path);
+    path.setAttribute('data-connected-from', elem1.id);
+    path.setAttribute('data-connected-to', elem2.id);
+    const connectionKey = elem1.id + "-" + elem2.id;
+    connectedPaths[connectionKey] = path;
+    console.log("Connection created with key:", connectionKey); // キーをログに出力
+}
+
     
     function getCenterOfElement(elem) {
         const rect = elem.getBoundingClientRect();
@@ -219,6 +221,10 @@
     
                 connectedPaths[startElem.id] = tempPath;
                 connectedPaths[endElem.id] = tempPath;
+
+                
+                const connectionKey = startElem.id + "-" + endElem.id;
+                connectedPaths[connectionKey] = tempPath;
             } else {
               document.getElementById('connectorContainer').removeChild(tempPath);
             }
@@ -277,26 +283,30 @@
     });
     
     document.querySelectorAll('.box').forEach(box => {
-        box.addEventListener('click', function(e) {
-            if (e.target.classList.contains('connected')) {
-                const existingPath = connectedPaths[e.target.id];
-                if (existingPath) {
-                    document.getElementById('connectorContainer').removeChild(existingPath);
-                    delete connectedPaths[e.target.id];
-                    e.target.classList.remove('connected');
-                    
-                    const connectedElemId = existingPath.getAttribute('data-connected-to');
-                    if (connectedElemId) {
-                        const connectedElem = document.getElementById(connectedElemId);
-                        if (connectedElem) {
-                            connectedElem.classList.remove('connected');
-                            delete connectedPaths[connectedElemId];
-                        }
-                    }
-                }
+    box.addEventListener('click', function(e) {
+        const boxId = e.target.id;
+        const existingPathKey = Object.keys(connectedPaths).find(key => key.includes(boxId));
+        console.log("Trying to remove connection with key:", existingPathKey); // キーをログに出力
+        const existingPath = connectedPaths[existingPathKey];
+        if (existingPath) {
+            const [fromBoxId, toBoxId] = existingPathKey.split('-');
+            
+            const fromBox = document.getElementById(fromBoxId);
+            const toBox = document.getElementById(toBoxId);
+            
+            if (fromBox) {
+                fromBox.classList.remove('connected');
             }
-        });
+            
+            if (toBox) {
+                toBox.classList.remove('connected');
+            }
+            
+            document.getElementById('connectorContainer').removeChild(existingPath);
+            delete connectedPaths[existingPathKey];
+        }
     });
+});
     
     window.addEventListener('DOMContentLoaded', (event) => {
         connectElements(document.getElementById('box1'), document.getElementById('box2'));
