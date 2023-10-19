@@ -273,6 +273,8 @@ function initializeAutoConnection() {
 
     const box1Elem = document.getElementById('box1');
     const box2Elem = document.getElementById('box2');
+    const box3Elem = document.getElementById('box3');
+    const box4Elem = document.getElementById('box4');
 
     console.log("box1Elem:", box1Elem);  // この行を追加
     console.log("box2Elem:", box2Elem);  // この行を追加
@@ -301,6 +303,36 @@ function initializeAutoConnection() {
                         toBox.classList.remove('connected');
                         document.getElementById('connectorContainer').removeChild(this);
                         delete connectedPaths[fromBoxId + "-" + toBoxId];
+                    }
+                });
+            }, 0);
+        }
+    }
+
+    if (box3Elem && box4Elem) {
+        const path = connectElements(box3Elem, box4Elem);
+        if (path) {
+            path.setAttribute('data-connected-from', 'box3');
+            path.setAttribute('data-connected-to', 'box4');
+            box3Elem.classList.add('connected');
+            box4Elem.classList.add('connected');
+            connectedPaths['box3'] = path;
+            connectedPaths['box4'] = path;
+
+            // Add click event listener to the auto-connected path after it's appended to the SVG container
+            setTimeout(() => {
+                path.addEventListener('click', function() {
+                    const fromBoxId = this.getAttribute('data-connected-from');
+                    const toBoxId = this.getAttribute('data-connected-to');
+                    const fromBox = document.getElementById(fromBoxId);
+                    const toBox = document.getElementById(toBoxId);
+
+                    if (fromBox && toBox) {
+                        fromBox.classList.remove('connected');
+                        toBox.classList.remove('connected');
+                        svgContainer.removeChild(this);
+                        delete connectedPaths[fromBoxId];
+                        delete connectedPaths[toBoxId];
                     }
                 });
             }, 0);
