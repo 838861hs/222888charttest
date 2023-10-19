@@ -72,6 +72,7 @@
 <body>
     <div class="wrapper">
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo quasi iste dolores magni odit recusandae quibusdam tempore quod illum incidunt placeat corrupti, debitis hic eveniet totam necessitatibus voluptates. Atque voluptas dicta ipsa sapiente aspernatur saepe est hic facilis, itaque velit nam aliquid ullam tempora deleniti architecto quisquam voluptatibus inventore fugit dolores animi rerum labore maxime. Dolor est accusamus soluta velit vel suscipit iusto quibusdam dolores. Sint, sed quis laborum consectetur facere ab veritatis commodi quidem ipsum explicabo? Facere magni tempore dignissimos commodi eveniet quaerat odio est? Eum quisquam doloremque ipsam ratione, iure omnis sint excepturi rem voluptatem voluptate, beatae amet.</p>
+        <button id="resetButton">リセット</button>
         <div class="wrap">
             <div id="box1" class="box"></div>
             <div id="box2" class="box"></div>
@@ -387,6 +388,26 @@ function initializeAutoConnection() {
             delete connectedPaths[existingPathKey];
         }
     });
+});
+
+document.getElementById('resetButton').addEventListener('click', function() {
+    // すべての接続を削除
+    Object.values(connectedPaths).forEach(path => {
+        if (document.getElementById('connectorContainer').contains(path)) {
+            document.getElementById('connectorContainer').removeChild(path);
+        }
+    });
+
+    // connectedPaths オブジェクトをリセット
+    connectedPaths = {};
+
+    // すべてのbox要素の 'connected' クラスを削除
+    document.querySelectorAll('.box').forEach(box => {
+        box.classList.remove('connected');
+    });
+
+    // 初期状態の接続を再作成
+    initializeAutoConnection();
 });
 </script>
 
