@@ -4,6 +4,34 @@ const bgCtx = bgCanvas.getContext('2d');
 const ctx = canvas.getContext('2d');
 const step = 30;
 
+let currentBgColor = { r: 253, g: 246, b: 200 }; // 現在の背景色（#fdf6c8）
+const targetBgColor = { r: 255, g: 255, b: 255 }; // 目標の背景色（#e0e0e0）
+const transitionDuration = 300; // トランジションの期間（1秒）
+let transitionStartTime;
+
+
+function animateBackgroundColor(time) {
+  if (!transitionStartTime) transitionStartTime = time;
+  const elapsed = time - transitionStartTime;
+
+  if (elapsed < transitionDuration) {
+      const t = elapsed / transitionDuration;
+      const r = currentBgColor.r + (targetBgColor.r - currentBgColor.r) * t;
+      const g = currentBgColor.g + (targetBgColor.g - currentBgColor.g) * t;
+      const b = currentBgColor.b + (targetBgColor.b - currentBgColor.b) * t;
+
+      bgCtx.fillStyle = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+      drawGrid();
+      drawH(gridCenterX - 3 * step, gridCenterY - 4 * step);
+
+      requestAnimationFrame(animateBackgroundColor);
+  } else {
+      currentBgColor = { ...targetBgColor };
+  }
+}
+
+
 let lastDropPoint = { x: 0, y: 0 };
 let lines = [];
 let isMagnifierOn = false;
@@ -67,6 +95,11 @@ function handleStart(e) {
     const closestPoint = getClosestGridPoint(e.offsetX, e.offsetY);
     startX = closestPoint.x;
     startY = closestPoint.y;
+
+    if (isDrawing) {
+      transitionStartTime = null;
+      requestAnimationFrame(animateBackgroundColor);
+  }
 }
 
 
@@ -196,25 +229,21 @@ function drawH(x, y) {
   bgCtx.lineTo(5*step, 4*step)
   bgCtx.stroke();
 
-
-  // 中央の横線
-  // ctx.beginPath();
-  // ctx.moveTo(x, y + 3.5 * step);
-  // ctx.lineTo(x + 5 * width, y + 3.5 * step);
-  // ctx.stroke();
-
-  // 右の縦線
-  // ctx.beginPath();
-  // ctx.moveTo(x + 4 * width, y);
-  // ctx.lineTo(x + 4 * width, y + height);
-  // ctx.moveTo(x + 4 * width + width, y);
-  // ctx.lineTo(x + 4 * width + width, y + height);
-  // ctx.stroke();
 }
 
 const gridCenterX = Math.floor(canvas.width / step / 2) * step;
 const gridCenterY = Math.floor(canvas.height / step / 2) * step;
 
+
+
+function setInitialBackgroundColor() {
+  bgCtx.fillStyle = `rgb(${currentBgColor.r}, ${currentBgColor.g}, ${currentBgColor.b})`;
+  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+  drawGrid();
+  drawH(gridCenterX - 3 * step, gridCenterY - 4 * step);
+}
+
+window.onload = setInitialBackgroundColor;
 
 
 
