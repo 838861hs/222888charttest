@@ -28,6 +28,7 @@ function animateBackgroundColor(time) {
       requestAnimationFrame(animateBackgroundColor);
   } else {
       currentBgColor = { ...targetBgColor };
+      transitionStartTime = null;
   }
 }
 
@@ -99,7 +100,7 @@ function handleStart(e) {
     if (isDrawing) {
       transitionStartTime = null;
       requestAnimationFrame(animateBackgroundColor);
-  }
+    }
 }
 
 
@@ -151,9 +152,11 @@ function handleEnd(e) {
 }
 
 document.getElementById('resetButton').addEventListener('click', () => {
-    lines = [];
-    lastDropPoint = { x: 0, y: 0 };
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  lines = [];
+  lastDropPoint = { x: 0, y: 0 };
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  currentBgColor = { r: 253, g: 246, b: 200 };  // currentBgColorを初期の色に戻す
+  setInitialBackgroundColor();
 });
 
 
