@@ -219,38 +219,47 @@ function startConnection(e) {
             return path;
         }
     
-        function drawBezier(e) {
-            e.preventDefault();
+function drawBezier(e) {
+    e.preventDefault();
+
+    if (!startElem) return;
+
+    const { x: endX, y: endY } = getCoordinates(e);
+    const rect = startElem.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const startX = rect.left + rect.width / 2 + scrollLeft;
+    const startY = rect.top + rect.height / 2 + scrollTop;
+
+    const controlX = (startX + endX) / 2;
+    const controlY = startY;
+
+    const d = `M ${startX} ${startY} Q ${controlX} ${controlY}, ${endX} ${endY}`;
+    tempPath.setAttribute('d', d);
+}
+
+
     
-            if (!startElem) return;
-    
-            const { x: endX, y: endY } = getCoordinates(e);
-            const startX = startElem.getBoundingClientRect().left + 16.5;
-            const startY = startElem.getBoundingClientRect().top + 16.5;
-            
-            const controlX = (startX + endX) / 2;
-            const controlY = startY;
-    
-            const d = `M ${startX} ${startY} Q ${controlX} ${controlY}, ${endX} ${endY}`;
-            tempPath.setAttribute('d', d);
+function getCoordinates(e) {
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (e.type.startsWith('touch')) {
+        if(e.changedTouches && e.changedTouches.length) {
+            return { x: e.changedTouches[0].clientX + scrollLeft, y: e.changedTouches[0].clientY + scrollTop };
         }
-    
-        function getCoordinates(e) {
-            if (e.type.startsWith('touch')) {
-                if(e.changedTouches && e.changedTouches.length) {
-                    return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-                }
-                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            }
-            return { x: e.clientX, y: e.clientY };
-        }
+        return { x: e.touches[0].clientX + scrollLeft, y: e.touches[0].clientY + scrollTop };
+    }
+    return { x: e.clientX + scrollLeft, y: e.clientY + scrollTop };
+}
     
         function endConnection(e) {
             e.preventDefault();
-    
+            
             if (!startElem) return;
     
-            const endElem = document.elementFromPoint(getCoordinates(e).x, getCoordinates(e).y);
+            const { x, y } = getCoordinates(e);
+            const endElem = document.elementFromPoint(x - window.pageXOffset, y - window.pageYOffset);
     
             if (endElem.classList.contains('box') && 
                 endElem !== startElem && 
