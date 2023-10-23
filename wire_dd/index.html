@@ -73,6 +73,9 @@
     <div class="wrapper">
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo quasi iste dolores magni odit recusandae quibusdam tempore quod illum incidunt placeat corrupti, debitis hic eveniet totam necessitatibus voluptates. Atque voluptas dicta ipsa sapiente aspernatur saepe est hic facilis, itaque velit nam aliquid ullam tempora deleniti architecto quisquam voluptatibus inventore fugit dolores animi rerum labore maxime. Dolor est accusamus soluta velit vel suscipit iusto quibusdam dolores. Sint, sed quis laborum consectetur facere ab veritatis commodi quidem ipsum explicabo? Facere magni tempore dignissimos commodi eveniet quaerat odio est? Eum quisquam doloremque ipsam ratione, iure omnis sint excepturi rem voluptatem voluptate, beatae amet.</p>
         <button id="resetButton">リセット</button>
+        <button id="saveButton">保存</button>
+<button id="reproduceButton">再現</button>
+
         <div class="wrap">
             <div id="box1" class="box"></div>
             <div id="box2" class="box"></div>
@@ -421,6 +424,74 @@ document.getElementById('resetButton').addEventListener('click', function() {
     // 初期状態の接続を再作成
     initializeAutoConnection();
 });
+
+
+
+
+// 保存ボタンのクリックイベント
+document.getElementById('saveButton').addEventListener('click', function() {
+    const paths = document.querySelectorAll('#connectorContainer path');
+    const pathsData = [];
+
+    paths.forEach(path => {
+        pathsData.push({
+            d: path.getAttribute('d'),
+            from: path.getAttribute('data-connected-from'),
+            to: path.getAttribute('data-connected-to')
+        });
+    });
+
+    localStorage.setItem('pathsData', JSON.stringify(pathsData));
+});
+
+// 再現ボタンのクリックイベント
+document.getElementById('reproduceButton').addEventListener('click', function() {
+    const pathsData = JSON.parse(localStorage.getItem('pathsData') || '[]');
+    const connectorContainer = document.getElementById('connectorContainer');
+
+    // 既存のpathをクリア
+    while (connectorContainer.firstChild) {
+        connectorContainer.removeChild(connectorContainer.firstChild);
+    }
+
+    pathsData.forEach(data => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', data.d);
+        path.setAttribute('stroke', 'black');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('data-connected-from', data.from);
+        path.setAttribute('data-connected-to', data.to);
+        connectorContainer.appendChild(path);
+
+        // クリックイベントリスナーを追加
+        path.addEventListener('click', function() {
+            const fromBoxId = this.getAttribute('data-connected-from');
+            const toBoxId = this.getAttribute('data-connected-to');
+
+            const fromBox = document.getElementById(fromBoxId);
+            const toBox = document.getElementById(toBoxId);
+
+            if (fromBox) {
+                fromBox.classList.remove('connected');
+            }
+
+            if (toBox) {
+                toBox.classList.remove('connected');
+            }
+
+            if (connectorContainer.contains(this)) {
+                connectorContainer.removeChild(this);
+            }
+        });
+
+        // connectedPathsにpathを追加
+        const connectionKey = data.from + "-" + data.to;
+        connectedPaths[connectionKey] = path;
+    });
+});
+
+
 </script>
 
 </body>
