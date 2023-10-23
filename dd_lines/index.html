@@ -135,16 +135,17 @@ function animate() {
     }
 }
 
-function startEvent (event) {
-  event.preventDefault();
+function startEvent(event) {
+    event.preventDefault();
 
-  const {x, y} = getEventPosition(event);
+    const { x, y } = getEventPosition(event);
 
-  selectedPoint = checkPointClicked(x, y);
-  
-  if (selectedPoint && !selectedPoint.connected) {
-    dragging = true;
-  }
+    selectedPoint = checkPointClicked(x, y);
+
+    if (selectedPoint && !selectedPoint.connected) {
+        dragging = true;
+        selectedPoint.hovered = true;  // ドラッグ開始時にhoveredをtrueに設定
+    }
 }
 
 function moveEvent(event) {
@@ -152,17 +153,23 @@ function moveEvent(event) {
     const { x, y } = getEventPosition(event);
 
     // 全てのポイントのhoveredフラグをリセット
-    points.forEach(point => point.hovered = false);
+    points.forEach(point => {
+        if (point !== selectedPoint) {  // ドラッグ中のポイントを除外
+            point.hovered = false;
+        }
+    });
 
+    let hoveredPoint = null;
     for (let point of points) {
         const dx = x - point.x;
         const dy = y - point.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // カーソルが外側の円にホバーしているか、またはドラッグ中にドロップ先のポイントにカーソルが乗ったかチェック
-        if (distance < 10 && (!dragging || (dragging && !point.connected))) {
+        // カーソルが外側の円にホバーしているかチェック
+        if (distance < 10 && point !== selectedPoint) {  // ドラッグ中のポイントを除外
+            hoveredPoint = point;
             point.hovered = true;
-            break;  // ホバーされているポイントが見つかったらループを終了
+            break;
         }
     }
 
@@ -179,46 +186,55 @@ function moveEvent(event) {
         ctx.stroke();
         ctx.closePath();
     }
+
+    if (hoveredPoint) {
+        requestAnimationFrame(animate);
+    }
 }
 
 
-
 function endEvent(event) {
-  if (!dragging || !selectedPoint || lines.length >= 4) return;
+    if (!dragging || !selectedPoint || lines.length >= 4) return;
 
-  const { x, y} = getEventPosition(event);
-  
-  const targetPoint = checkPointClicked (x, y);
+    const { x, y } = getEventPosition(event);
+    const targetPoint = checkPointClicked(x, y);
 
-  if (
-    targetPoint &&
-    targetPoint.x !== selectedPoint.x &&
-    !targetPoint.connected
-  ) {
-      lines.push({start: selectedPoint, end: targetPoint });
-      selectedPoint.connected = true;
-      targetPoint.connected = true;
+    if (
+        targetPoint &&
+        targetPoint.x !== selectedPoint.x &&
+        !targetPoint.connected
+    ) {
+        lines.push({ start: selectedPoint, end: targetPoint });
+        selectedPoint.connected = true;
+        targetPoint.connected = true;
 
-      if (selectedPoint.number !== undefined) {
-          targetPoint.answer = selectedPoint.number;
-      }
-      if (targetPoint.number !== undefined) {
-        selectedPoint.answer = targetPoint.number;
-      }
+        // ドロップ先とドラッグ元のポイントのhoveredをfalseに設定
+        selectedPoint.hovered = false;
+        targetPoint.hovered = false;
+
+        if (selectedPoint.number !== undefined) {
+            targetPoint.answer = selectedPoint.number;
+        }
+        if (targetPoint.number !== undefined) {
+            selectedPoint.answer = targetPoint.number;
+        }
+    } else {
+        // ドロップ先がポイントでない場合、ドラッグ元のポイントのhoveredをfalseに設定
+        selectedPoint.hovered = false;
     }
 
-  if (checkAnswers()) {
-    const inputElement = document.querySelector('input');
-    if (inputElement) {
-      inputElement.value = 'correct';
+    if (checkAnswers()) {
+        const inputElement = document.querySelector('input');
+        if (inputElement) {
+            inputElement.value = 'correct';
+        }
     }
-  }
 
-  dragging = false;
-  selectedPoint = null;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawLines();
-  drawPoints();
+    dragging = false;
+    selectedPoint = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawLines();
+    drawPoints();
 }
 
 
