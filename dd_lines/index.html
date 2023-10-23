@@ -175,8 +175,7 @@ function moveEvent(event) {
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawLines();
-    drawPoints();
+
 
     // ドラッグ中の処理
     if (dragging && selectedPoint) {
@@ -188,6 +187,8 @@ function moveEvent(event) {
         ctx.stroke();
         ctx.closePath();
     }
+    drawLines();
+    drawPoints();
 
     if (hoveredPoint) {
         requestAnimationFrame(animate);
