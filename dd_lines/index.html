@@ -7,11 +7,11 @@
 </head>
 <body>
   <canvas id="myCanvas" width="159" height="160"></canvas>
-  <button id=" resetButton">リセット</button>
+  <button id="resetButton">リセット</button>
   <input type="hidden" id="CBT_Answer_01" name="CBT_Answer_01">
   <script>
     const canvas = document.getElementById('myCanvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')
     const resetButton = document.getElementById('resetButton');
     const points = [
       { x: 30, y: 10, connected: false, answer: null},
@@ -231,6 +231,25 @@ canvas.addEventListener('touchend', endEvent);
 
 drawPoints();
 
+
+function resetCanvas() {
+    // lines 配列を空にする
+    lines = [];
+
+    // points の各ポイントの connected と answer を初期状態にリセット
+    points.forEach(point => {
+        point.connected = false;
+        point.answer = null;
+        point.hovered = false;
+    });
+
+    // キャンバスをクリアし、ポイントとラインを再描画
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawLines();
+    drawPoints();
+}
+
+resetButton.addEventListener("click",resetCanvas)
 
 </script>
 </body>
