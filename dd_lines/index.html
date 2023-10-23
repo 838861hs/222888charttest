@@ -36,6 +36,8 @@ function drawLines() {
   ctx.beginPath();
   ctx.moveTo(line.start.x, line.start.y);
   ctx.lineTo(line.end.x, line.end.y);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'blue';
   ctx.stroke();
   ctx.closePath();
  })
@@ -152,7 +154,6 @@ function moveEvent(event) {
     event.preventDefault();
     const { x, y } = getEventPosition(event);
 
-    // 全てのポイントのhoveredフラグをリセット
     points.forEach(point => {
         if (point !== selectedPoint) {  // ドラッグ中のポイントを除外
             point.hovered = false;
@@ -182,7 +183,8 @@ function moveEvent(event) {
         ctx.beginPath();
         ctx.moveTo(selectedPoint.x, selectedPoint.y);
         ctx.lineTo(x, y);
-        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = 'red';
         ctx.stroke();
         ctx.closePath();
     }
