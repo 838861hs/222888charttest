@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="myCanvas" width="159" height="160"></canvas>
+  <button id=" resetButton">リセット</button>
+  <input type="hidden" id="CBT_Answer_01" name="CBT_Answer_01">
+  <script>
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    const resetButton = document.getElementById('resetButton');
+    const points = [
+      { x: 30, y: 10, connected: false, answer: null},
+      { x: 30, y: 50, connected: false, answer: null},
+      { x: 30, y: 100, connected: false, answer: null},
+      { x: 30, y: 150, connected: false, answer: null},
+      { x: 120, y: 10, connected: false, number: 0 },
+      { x: 120, y: 50, connected: false, number: 1 },
+      { x: 120, y: 100, connected: false, number: 2 },
+      { x: 120, y: 150, connected: false, number: 3 },
+    ];
+let lines = [];
+let dragging = false;
+let selectedPoint = null;
+
+//ホバーアニメーションに使う定数
+let innerRadius = 4;
+let targetInnerRadius = 6;
+
+function drawLines() {
+ lines.forEach((line) => {
+  ctx.beginPath();
+  ctx.moveTo(line.start.x, line.start.y);
+  ctx.lineTo(line.end.x, line.end.y);
+  ctx.stroke();
+  ctx.closePath();
+ })
+}
+
+function drawPoints() {
+    points.forEach((point) => {
+        // Outermost circle (Orange)
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = 'orange';
+        ctx.fill();
+        ctx.closePath();
+
+        // Middle circle (White)
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+
+        // Innermost circle (Orange)
+        ctx.beginPath();
+        const radius = point.hovered ? targetInnerRadius : innerRadius;
+        ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'orange';
+        ctx.fill();
+        ctx.closePath();
+    });
+}
+
+
+function checkPointClicked (x, y) {
+    for (let point of points) {
+      const dx = x - point.x;
+      const dy = y - point.y;
+      if (Math.sqrt(dx * dx + dy * dy) < 5) {
+        // Check for inner circle
+        return point;
+      }
+  }
+  return null;
+}
+
+function checkAnswers() {
+  const order = [2,3,0,1];
+  for(let i = 0; i < 4; i++) {
+    if(points[i].answer !== order[i]){
+      return false;
+    }
+  }
+  return false;
+}
+
+function getEventPosition(event) {
+  const rect = canvas.getBoundingClientRect();
+  const touch =
+    (event.touches && event.touches[0]) ||
+    (event.changedTouches && event.changedTouches[0]);
+  if (touch) {
+    return {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
+    };
+  } else {
+    return {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top,
+    }
+  }
+}
+
+function animate() {
+    let isAnimating = false;
+
+    points.forEach(point => {
+        if (point.hovered && point.innerRadius < targetInnerRadius) {
+            point.innerRadius += 0.1;
+            if (point.innerRadius > targetInnerRadius) {
+                point.innerRadius = targetInnerRadius;
+            }
+            isAnimating = true;
+        } else if (!point.hovered && point.innerRadius > innerRadius) {
+            point.innerRadius -= 0.1;
+            if (point.innerRadius < innerRadius) {
+                point.innerRadius = innerRadius;
+            }
+            isAnimating = true;
+        }
+    });
+
+    if (isAnimating) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawLines();
+        drawPoints();
+        requestAnimationFrame(animate);
+    }
+}
+
+function startEvent (event) {
+  event.preventDefault();
+
+  const {x, y} = getEventPosition(event);
+
+  selectedPoint = checkPointClicked(x, y);
+  
+  if (selectedPoint && !selectedPoint.connected) {
+    dragging = true;
+  }
+}
+
+function moveEvent(event) {
+    event.preventDefault();
+    const { x, y } = getEventPosition(event);
+
+    // 全てのポイントのhoveredフラグをリセット
+    points.forEach(point => point.hovered = false);
+
+    for (let point of points) {
+        const dx = x - point.x;
+        const dy = y - point.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // カーソルが外側の円にホバーしているか、またはドラッグ中にドロップ先のポイントにカーソルが乗ったかチェック
+        if (distance < 10 && (!dragging || (dragging && !point.connected))) {
+            point.hovered = true;
+            break;  // ホバーされているポイントが見つかったらループを終了
+        }
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawLines();
+    drawPoints();
+
+    // ドラッグ中の処理
+    if (dragging && selectedPoint) {
+        ctx.beginPath();
+        ctx.moveTo(selectedPoint.x, selectedPoint.y);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+        ctx.closePath();
+    }
+}
+
+
+
+function endEvent(event) {
+  if (!dragging || !selectedPoint || lines.length >= 4) return;
+
+  const { x, y} = getEventPosition(event);
+  
+  const targetPoint = checkPointClicked (x, y);
+
+  if (
+    targetPoint &&
+    targetPoint.x !== selectedPoint.x &&
+    !targetPoint.connected
+  ) {
+      lines.push({start: selectedPoint, end: targetPoint });
+      selectedPoint.connected = true;
+      targetPoint.connected = true;
+
+      if (selectedPoint.number !== undefined) {
+          targetPoint.answer = selectedPoint.number;
+      }
+      if (targetPoint.number !== undefined) {
+        selectedPoint.answer = targetPoint.number;
+      }
+    }
+
+  if (checkAnswers()) {
+    const inputElement = document.querySelector('input');
+    if (inputElement) {
+      inputElement.value = 'correct';
+    }
+  }
+
+  dragging = false;
+  selectedPoint = null;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawLines();
+  drawPoints();
+}
+
+
+canvas.addEventListener('mousedown', startEvent);
+canvas.addEventListener('touchstart', startEvent);
+canvas.addEventListener('mousemove', moveEvent);
+canvas.addEventListener('touchmove', moveEvent);
+canvas.addEventListener('mouseup', endEvent);
+canvas.addEventListener('touchend', endEvent);
+
+drawPoints();
+
+
+</script>
+</body>
+</html>
