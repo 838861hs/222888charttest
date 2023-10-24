@@ -74,9 +74,8 @@
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo quasi iste dolores magni odit recusandae quibusdam tempore quod illum incidunt placeat corrupti, debitis hic eveniet totam necessitatibus voluptates. Atque voluptas dicta ipsa sapiente aspernatur saepe est hic facilis, itaque velit nam aliquid ullam tempora deleniti architecto quisquam voluptatibus inventore fugit dolores animi rerum labore maxime. Dolor est accusamus soluta velit vel suscipit iusto quibusdam dolores. Sint, sed quis laborum consectetur facere ab veritatis commodi quidem ipsum explicabo? Facere magni tempore dignissimos commodi eveniet quaerat odio est? Eum quisquam doloremque ipsam ratione, iure omnis sint excepturi rem voluptatem voluptate, beatae amet.</p>
         <button id="resetButton">リセット</button>
         <button id="saveButton">保存</button>
-<button id="reproduceButton">再現</button>
-
-        <div class="wrap">
+        <button id="reproduceButton">再現</button>
+        <div class="wrap" id="wrap">
             <div id="box1" class="box"></div>
             <div id="box2" class="box"></div>
             <div id="box3" class="box"></div>
@@ -84,13 +83,10 @@
             <div id="box5" class="box"></div>
             <svg>
                 <path id="connector" d=""></path>
-              </svg>
-              
-              <svg id="connectorContainer"></svg>
+            </svg>
+            <svg id="connectorContainer"></svg>
         </div>
     </div>
-
-
 
 <script>
 function connectElements(elem1, elem2) {
@@ -129,13 +125,17 @@ function createSVGCurve(coords1, coords2) {
 
 function getCenterOfElement(elem) {
     const rect = elem.getBoundingClientRect();
-    const wrapOffset = getWrapOffset();
-    const svgContainer = document.getElementById('connectorContainer');
-    const viewBox = svgContainer.getAttribute('viewBox').split(' ').map(parseFloat);
+    const wrapRect = document.getElementById('wrap').getBoundingClientRect();
     return {
-        x: rect.left + rect.width / 2 - wrapOffset.left + viewBox[0],
-        y: rect.top + rect.height / 2 - wrapOffset.top + viewBox[1]
+        x: rect.left - wrapRect.left + rect.width / 2,
+        y: rect.top - wrapRect.top + rect.height / 2
     };
+}
+
+function setSVGViewBox() {
+    const wrap = document.getElementById('wrap');
+    const svgContainer = document.getElementById('connectorContainer');
+    svgContainer.setAttribute('viewBox', `0 0 ${wrap.offsetWidth} ${wrap.offsetHeight}`);
 }
 
 
@@ -225,17 +225,17 @@ function startConnection(e) {
             return path;
         }
     
-function drawBezier(e) {
+        function drawBezier(e) {
     e.preventDefault();
 
     if (!startElem) return;
 
+    const wrapRect = document.getElementById('wrap').getBoundingClientRect();
+
     const { x: endX, y: endY } = getCoordinates(e);
     const rect = startElem.getBoundingClientRect();
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const startX = rect.left + rect.width / 2 + scrollLeft;
-    const startY = rect.top + rect.height / 2 + scrollTop;
+    const startX = rect.left + rect.width / 2 - wrapRect.left;
+    const startY = rect.top + rect.height / 2 - wrapRect.top;
 
     const controlX = (startX + endX) / 2;
     const controlY = startY;
@@ -245,19 +245,28 @@ function drawBezier(e) {
 }
 
 
+
     
 function getCoordinates(e) {
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
+    const wrapRect = document.getElementById('wrap').getBoundingClientRect();
     if (e.type.startsWith('touch')) {
         if(e.changedTouches && e.changedTouches.length) {
-            return { x: e.changedTouches[0].clientX + scrollLeft, y: e.changedTouches[0].clientY + scrollTop };
+            return { 
+                x: e.changedTouches[0].clientX - wrapRect.left, 
+                y: e.changedTouches[0].clientY - wrapRect.top 
+            };
         }
-        return { x: e.touches[0].clientX + scrollLeft, y: e.touches[0].clientY + scrollTop };
+        return { 
+            x: e.touches[0].clientX - wrapRect.left, 
+            y: e.touches[0].clientY - wrapRect.top 
+        };
     }
-    return { x: e.clientX + scrollLeft, y: e.clientY + scrollTop };
+    return { 
+        x: e.clientX - wrapRect.left, 
+        y: e.clientY - wrapRect.top 
+    };
 }
+
     
         function endConnection(e) {
             e.preventDefault();
@@ -303,24 +312,82 @@ function getCoordinates(e) {
             elem.addEventListener('touchstart', startConnection);
         });
     
-        function initializeAutoConnection() {
+function initializeAutoConnection() {
+    console.log("initializeAutoConnection called");  // この行を追加
+
     const box1Elem = document.getElementById('box1');
     const box2Elem = document.getElementById('box2');
     const box3Elem = document.getElementById('box3');
     const box4Elem = document.getElementById('box4');
 
+    console.log("box1Elem:", box1Elem);  // この行を追加
+    console.log("box2Elem:", box2Elem);  // この行を追加
+    
     if (box1Elem && box2Elem) {
-        connectElements(box1Elem, box2Elem);
+        const path = connectElements(box1Elem, box2Elem);
+        console.log("connectElements called");  // この行を追加
+        if (path) {
+            path.setAttribute('data-connected-from', 'box1');
+            path.setAttribute('data-connected-to', 'box2');
+            box1Elem.classList.add('connected');
+            box2Elem.classList.add('connected');
+            connectedPaths['box1-box2'] = path;
+
+            // Add click event listener to the auto-connected path after it's appended to the SVG container
+            setTimeout(() => {
+                path.addEventListener('click', function() {
+                    const fromBoxId = this.getAttribute('data-connected-from');
+                    const toBoxId = this.getAttribute('data-connected-to');
+    
+                    const fromBox = document.getElementById(fromBoxId);
+                    const toBox = document.getElementById(toBoxId);
+    
+                    if (fromBox && toBox) {
+                        fromBox.classList.remove('connected');
+                        toBox.classList.remove('connected');
+                        document.getElementById('connectorContainer').removeChild(this);
+                        delete connectedPaths[fromBoxId + "-" + toBoxId];
+                    }
+                });
+            }, 0);
+        }
     }
 
     if (box3Elem && box4Elem) {
-        connectElements(box3Elem, box4Elem);
+        const path = connectElements(box3Elem, box4Elem);
+        if (path) {
+            path.setAttribute('data-connected-from', 'box3');
+            path.setAttribute('data-connected-to', 'box4');
+            box3Elem.classList.add('connected');
+            box4Elem.classList.add('connected');
+            connectedPaths['box3'] = path;
+            connectedPaths['box4'] = path;
+
+            // Add click event listener to the auto-connected path after it's appended to the SVG container
+            setTimeout(() => {
+                path.addEventListener('click', function() {
+                    const fromBoxId = this.getAttribute('data-connected-from');
+                    const toBoxId = this.getAttribute('data-connected-to');
+                    const fromBox = document.getElementById(fromBoxId);
+                    const toBox = document.getElementById(toBoxId);
+
+                    if (fromBox && toBox) {
+                        fromBox.classList.remove('connected');
+                        toBox.classList.remove('connected');
+                        svgContainer.removeChild(this);
+                        delete connectedPaths[fromBoxId];
+                        delete connectedPaths[toBoxId];
+                    }
+                });
+            }, 0);
+        }
     }
 }
+
     
     document.addEventListener('DOMContentLoaded', function() {
-        adjustSVGViewport();
-        initializeAutoConnection();
+        setSVGViewBox();
+    initializeAutoConnection();
     });
     
     document.querySelectorAll('.box').forEach(box => {
@@ -376,6 +443,9 @@ document.getElementById('resetButton').addEventListener('click', function() {
 
 // 保存ボタンのクリックイベント
 document.getElementById('saveButton').addEventListener('click', function() {
+    const wrap = document.getElementById('wrap');
+    const wrapWidth = wrap.offsetWidth;
+    const wrapHeight = wrap.offsetHeight;
     const paths = document.querySelectorAll('#connectorContainer path');
     const pathsData = [];
 
@@ -386,12 +456,22 @@ document.getElementById('saveButton').addEventListener('click', function() {
             to: path.getAttribute('data-connected-to')
         });
     });
-
+    localStorage.setItem('wrapWidth', wrapWidth);
+    localStorage.setItem('wrapHeight', wrapHeight);
     localStorage.setItem('pathsData', JSON.stringify(pathsData));
 });
 
 // 再現ボタンのクリックイベント
 document.getElementById('reproduceButton').addEventListener('click', function() {
+    const originalWrapWidth = localStorage.getItem('wrapWidth');
+    const originalWrapHeight = localStorage.getItem('wrapHeight');
+
+    const currentWrapWidth = wrap.offsetWidth;
+    const currentWrapHeight = wrap.offsetHeight;
+
+    const scaleX = currentWrapWidth / originalWrapWidth;
+    const scaleY = currentWrapHeight / originalWrapHeight;
+
     const pathsData = JSON.parse(localStorage.getItem('pathsData') || '[]');
     const connectorContainer = document.getElementById('connectorContainer');
 
@@ -401,6 +481,7 @@ document.getElementById('reproduceButton').addEventListener('click', function() 
     }
 
     pathsData.forEach(data => {
+        const scaledD = scalePath(data.d, scaleX, scaleY);
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', data.d);
         path.setAttribute('stroke', 'black');
@@ -437,29 +518,45 @@ document.getElementById('reproduceButton').addEventListener('click', function() 
     });
 });
 
-function getWrapOffset() {
-    const wrap = document.querySelector('.wrap');
-    const rect = wrap.getBoundingClientRect();
-    return {
-        left: rect.left + window.pageXOffset,
-        top: rect.top + window.pageYOffset
-    };
-}
-function adjustSVGViewport() {
-    const wrapOffset = getWrapOffset();
-    const svgContainer = document.getElementById('connectorContainer');
-    svgContainer.setAttribute('viewBox', `${wrapOffset.left} ${wrapOffset.top} ${svgContainer.clientWidth} ${svgContainer.clientHeight}`);
+
+
+function scalePath(d, scaleX, scaleY) {
+    return d.replace(/M(\d+),(\d+) Q(\d+),(\d+), (\d+),(\d+)/g, function(match, mX, mY, qX, qY, endX, endY) {
+        return `M${mX * scaleX},${mY * scaleY} Q${qX * scaleX},${qY * scaleY}, ${endX * scaleX},${endY * scaleY}`;
+    });
 }
 
-window.addEventListener('resize', adjustSVGViewport);
-document.addEventListener('DOMContentLoaded', adjustSVGViewport);
 
 
+function scalePath(d, scaleX, scaleY) {
+    return d.replace(/M(\d+),(\d+) Q(\d+),(\d+), (\d+),(\d+)/g, function(match, mX, mY, qX, qY, endX, endY) {
+        return `M${mX * scaleX},${mY * scaleY} Q${qX * scaleX},${qY * scaleY}, ${endX * scaleX},${endY * scaleY}`;
+    });
+}
 
+window.addEventListener('resize', setSVGViewBox);
 
+// let previousWrapWidth = document.getElementById('wrap').offsetWidth;
+// let previousWrapHeight = document.getElementById('wrap').offsetHeight;
 
+// window.addEventListener('resize', function() {
+//     const wrap = document.getElementById('wrap');
+//     const currentWrapWidth = wrap.offsetWidth;
+//     const currentWrapHeight = wrap.offsetHeight;
 
+//     const scaleX = currentWrapWidth / previousWrapWidth;
+//     const scaleY = currentWrapHeight / previousWrapHeight;
 
+//     const paths = document.querySelectorAll('#connectorContainer path');
+//     paths.forEach(path => {
+//         const d = path.getAttribute('d');
+//         const scaledD = scalePath(d, scaleX, scaleY);
+//         path.setAttribute('d', scaledD);
+//     });
+
+//     previousWrapWidth = currentWrapWidth;
+//     previousWrapHeight = currentWrapHeight;
+// });
 </script>
 
 </body>
