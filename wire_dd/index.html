@@ -94,21 +94,18 @@
 
 <script>
 function connectElements(elem1, elem2) {
-    const path = createSVGCurve(  // この行を変更
+    const path = createSVGCurve(
         getCenterOfElement(elem1),
         getCenterOfElement(elem2)
     );
-    console.log("Created path:", path);  // この行を追加
     document.getElementById('connectorContainer').appendChild(path);
     elem1.classList.add('connected');
     elem2.classList.add('connected');
-    console.log("Path appended to connectorContainer");  // この行を追加
 
     path.setAttribute('data-connected-from', elem1.id);
     path.setAttribute('data-connected-to', elem2.id);
     const connectionKey = elem1.id + "-" + elem2.id;
     connectedPaths[connectionKey] = path;
-    console.log("Connection created with key:", connectionKey); // キーをログに出力
 }
 
 function createSVGCurve(coords1, coords2) {
@@ -121,8 +118,8 @@ function createSVGCurve(coords1, coords2) {
 
     const d = `M${coords1.x},${coords1.y} C${controlX1},${controlY1} ${controlX2},${controlY2} ${coords2.x},${coords2.y}`;
     path.setAttribute('d', d);
-    path.setAttribute('stroke', 'black');
-    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke', 'red');
+    path.setAttribute('stroke-width', '5');
     path.setAttribute('fill', 'none');
     return path;
 }
@@ -130,11 +127,9 @@ function createSVGCurve(coords1, coords2) {
 function getCenterOfElement(elem) {
     const rect = elem.getBoundingClientRect();
     const wrapOffset = getWrapOffset();
-    const svgContainer = document.getElementById('connectorContainer');
-    const viewBox = svgContainer.getAttribute('viewBox').split(' ').map(parseFloat);
     return {
-        x: rect.left + rect.width / 2 - wrapOffset.left + viewBox[0],
-        y: rect.top + rect.height / 2 - wrapOffset.top + viewBox[1]
+        x: rect.left + rect.width / 2 - wrapOffset.left,
+        y: rect.top + rect.height / 2 - wrapOffset.top
     };
 }
 
@@ -156,50 +151,9 @@ let connectedPaths = {};
 const path = document.getElementById('connector');
 
 function startConnection(e) {
-    console.log("startConnection called for element:", e.target.id);
-
     e.preventDefault();
 
-    // 既存の接続のキーを取得
-    let existingPathKey = Object.keys(connectedPaths).find(key => key.includes(e.target.id));
-    console.log("Detected key:", existingPathKey);
-
-    // 既に接続済みの要素であるかの確認
-    if (e.target.classList.contains('connected') && existingPathKey) {
-        console.log("Inside the block for removing existing connection.");
-
-        const existingPath = connectedPaths[existingPathKey];
-        if (existingPath) {
-            console.log("Existing path found:", existingPath);
-
-            const fromBoxId = existingPath.getAttribute('data-connected-from');
-            const toBoxId = existingPath.getAttribute('data-connected-to');
-            console.log("Trying to remove connection with key:", existingPathKey);
-
-            if (fromBoxId) {
-                const fromBox = document.getElementById(fromBoxId);
-                if (fromBox) {
-                    fromBox.classList.remove('connected');
-                    delete connectedPaths[fromBoxId];
-                }
-            }
-
-            if (toBoxId) {
-                const toBox = document.getElementById(toBoxId);
-                if (toBox) {
-                    toBox.classList.remove('connected');
-                    delete connectedPaths[toBoxId];
-                }
-            }
-
-            document.getElementById('connectorContainer').removeChild(existingPath);
-            delete connectedPaths[existingPathKey];
-        } else {
-            console.log("No existing path found for key:", existingPathKey);
-        }
-    } else {
-        console.log("Element is not connected or no existing path key detected.");
-    }
+    if (e.target.classList.contains('connected')) return; // この行を追加
 
     startElem = e.target;
 
@@ -214,8 +168,6 @@ function startConnection(e) {
     tempPath = createPathElement();
     document.getElementById('connectorContainer').appendChild(tempPath);
 }
-
-
     
         function createPathElement() {
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -225,85 +177,84 @@ function startConnection(e) {
             return path;
         }
     
-function drawBezier(e) {
+        function drawBezier(e) {
     e.preventDefault();
 
     if (!startElem) return;
 
     const { x: endX, y: endY } = getCoordinates(e);
-    const rect = startElem.getBoundingClientRect();
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const startX = rect.left + rect.width / 2 + scrollLeft;
-    const startY = rect.top + rect.height / 2 + scrollTop;
+    const startCoords = getCenterOfElement(startElem);
 
-    const controlX = (startX + endX) / 2;
-    const controlY = startY;
+    const controlX = (startCoords.x + endX) / 2;
+    const controlY = startCoords.y;
 
-    const d = `M ${startX} ${startY} Q ${controlX} ${controlY}, ${endX} ${endY}`;
+    const d = `M ${startCoords.x} ${startCoords.y} Q ${controlX} ${controlY}, ${endX} ${endY}`;
     tempPath.setAttribute('d', d);
 }
 
 
+
     
 function getCoordinates(e) {
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
+    const wrapOffset = getWrapOffset();
     if (e.type.startsWith('touch')) {
         if(e.changedTouches && e.changedTouches.length) {
-            return { x: e.changedTouches[0].clientX + scrollLeft, y: e.changedTouches[0].clientY + scrollTop };
+            return { x: e.changedTouches[0].clientX - wrapOffset.left, y: e.changedTouches[0].clientY - wrapOffset.top };
         }
-        return { x: e.touches[0].clientX + scrollLeft, y: e.touches[0].clientY + scrollTop };
+        return { x: e.touches[0].clientX - wrapOffset.left, y: e.touches[0].clientY - wrapOffset.top };
     }
-    return { x: e.clientX + scrollLeft, y: e.clientY + scrollTop };
+    return { x: e.clientX - wrapOffset.left, y: e.clientY - wrapOffset.top };
 }
     
-        function endConnection(e) {
-            e.preventDefault();
-            
-            if (!startElem) return;
-    
-            const { x, y } = getCoordinates(e);
-            const endElem = document.elementFromPoint(x - window.pageXOffset, y - window.pageYOffset);
-    
-            if (endElem.classList.contains('box') && 
-                endElem !== startElem && 
-                !endElem.classList.contains('connected') &&
-                !startElem.classList.contains('connected'))  {
-                console.log(`Connected ${startElem.id} to ${endElem.id}`);
-            
-                startElem.classList.add('connected');
-                endElem.classList.add('connected');
-    
-                tempPath.setAttribute('data-connected-from', startElem.id);
-                tempPath.setAttribute('data-connected-to', endElem.id);
-    
-                connectedPaths[startElem.id] = tempPath;
-                connectedPaths[endElem.id] = tempPath;
 
-                
-                const connectionKey = startElem.id + "-" + endElem.id;
-                connectedPaths[connectionKey] = tempPath;
-            } else {
-              document.getElementById('connectorContainer').removeChild(tempPath);
-            }
-    
-            document.removeEventListener("mousemove", drawBezier);
-            document.removeEventListener("mouseup", endConnection);
-            document.removeEventListener("touchmove", drawBezier);
-            document.removeEventListener("touchend", endConnection);
-    
-            startElem = null;
-            tempPath = null;
-        }
-    
+function endConnection(e) {
+    e.preventDefault();
+
+    if (!startElem) return;
+
+    const { x, y } = getCoordinates(e);
+    const endElem = document.elementFromPoint(e.clientX, e.clientY); // この行を修正
+
+    if (!tempPath) {
+        console.error("TempPath is not defined!");
+        return;
+    }
+
+    if (endElem && endElem.classList.contains('box') && 
+        endElem !== startElem && 
+        !endElem.classList.contains('connected') &&
+        !startElem.classList.contains('connected'))  {
+        
+        startElem.classList.add('connected');
+        endElem.classList.add('connected');
+
+        tempPath.setAttribute('data-connected-from', startElem.id);
+        tempPath.setAttribute('data-connected-to', endElem.id);
+
+        const connectionKey = startElem.id + "-" + endElem.id;
+        connectedPaths[connectionKey] = tempPath;
+    } else {
+        document.getElementById('connectorContainer').removeChild(tempPath);
+    }
+
+    document.removeEventListener("mousemove", drawBezier);
+    document.removeEventListener("mouseup", endConnection);
+    document.removeEventListener("touchmove", drawBezier);
+    document.removeEventListener("touchend", endConnection);
+
+    startElem = null;
+    tempPath = null;
+}
+
+
+
         document.querySelectorAll('.box').forEach(elem => {
             elem.addEventListener('mousedown', startConnection);
             elem.addEventListener('touchstart', startConnection);
         });
     
         function initializeAutoConnection() {
+    adjustSVGViewport();
     const box1Elem = document.getElementById('box1');
     const box2Elem = document.getElementById('box2');
     const box3Elem = document.getElementById('box3');
@@ -317,7 +268,7 @@ function getCoordinates(e) {
         connectElements(box3Elem, box4Elem);
     }
 }
-    
+ 
     document.addEventListener('DOMContentLoaded', function() {
         adjustSVGViewport();
         initializeAutoConnection();
@@ -441,18 +392,20 @@ function getWrapOffset() {
     const wrap = document.querySelector('.wrap');
     const rect = wrap.getBoundingClientRect();
     return {
-        left: rect.left + window.pageXOffset,
-        top: rect.top + window.pageYOffset
+        left: rect.left,
+        top: rect.top
     };
 }
+
 function adjustSVGViewport() {
-    const wrapOffset = getWrapOffset();
+    const wrap = document.querySelector('.wrap');
+    const rect = wrap.getBoundingClientRect();
     const svgContainer = document.getElementById('connectorContainer');
-    svgContainer.setAttribute('viewBox', `${wrapOffset.left} ${wrapOffset.top} ${svgContainer.clientWidth} ${svgContainer.clientHeight}`);
+    svgContainer.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
 }
 
-window.addEventListener('resize', adjustSVGViewport);
-document.addEventListener('DOMContentLoaded', adjustSVGViewport);
+    window.addEventListener('resize', adjustSVGViewport);
+    document.addEventListener('DOMContentLoaded', adjustSVGViewport);
 
 
 
