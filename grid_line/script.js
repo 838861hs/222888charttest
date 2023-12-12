@@ -159,80 +159,36 @@ document.getElementById('resetButton').addEventListener('click', () => {
   setInitialBackgroundColor();
 });
 
-
 function drawH(x, y) {
   const width = 2 * step; // 2マス分の太さ
   const height = 8 * step; // Hの高さを8マス分としています。
 
-  bgCtx.lineWidth = 3; // 縁取りの太さを2pxに設定
+  bgCtx.lineWidth = 3; // 縁取りの太さを3pxに設定
   bgCtx.strokeStyle = '#000000'; // 縁取りの色を黒に設定
+  bgCtx.fillStyle = '#FF0000'; // 塗りつぶしの色を赤に設定（お好みで変更）
 
+  // Hの形状を一つのパスとして描画
   bgCtx.beginPath();
   bgCtx.moveTo(x, y);
   bgCtx.lineTo(x, y + height);
-  bgCtx.stroke();
-  
-  bgCtx.beginPath();
-  bgCtx.moveTo(5*step, 12*step)
-  bgCtx.lineTo(7*step, 12*step)
-  bgCtx.stroke();
+  bgCtx.lineTo(x + width, y + height);
+  bgCtx.lineTo(x + width, y + height / 2 + step);
+  bgCtx.lineTo(x + 3 * width, y + height / 2 + step);
+  bgCtx.lineTo(x + 3 * width, y + height);
+  bgCtx.lineTo(x + 4 * width, y + height);
+  bgCtx.lineTo(x + 4 * width, y);
+  bgCtx.lineTo(x + 3 * width, y);
+  bgCtx.lineTo(x + 3 * width, y + height / 2 - step);
+  bgCtx.lineTo(x + width, y + height / 2 - step);
+  bgCtx.lineTo(x + width, y);
+  bgCtx.closePath();
 
-  bgCtx.beginPath();
-  bgCtx.moveTo(7*step, 12*step)
-  bgCtx.lineTo(7*step, 9*step)
+  // パスの内側を塗りつぶし
+  bgCtx.fill();
+  // パスの輪郭を描画
   bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(7*step, 9*step)
-  bgCtx.lineTo(11*step, 9*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(11*step, 9*step)
-  bgCtx.lineTo(11*step, 12*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(11*step, 9*step)
-  bgCtx.lineTo(11*step, 12*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(11*step, 12*step)
-  bgCtx.lineTo(13*step, 12*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(13*step, 12*step)
-  bgCtx.lineTo(13*step, 4*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(13*step, 4*step)
-  bgCtx.lineTo(11*step, 4*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(11*step, 4*step)
-  bgCtx.lineTo(11*step, 7*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(11*step, 7*step)
-  bgCtx.lineTo(7*step, 7*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(7*step, 7*step)
-  bgCtx.lineTo(7*step, 4*step)
-  bgCtx.stroke();
-
-  bgCtx.beginPath();
-  bgCtx.moveTo(7*step, 4*step)
-  bgCtx.lineTo(5*step, 4*step)
-  bgCtx.stroke();
-
 }
+
 
 const gridCenterX = Math.floor(canvas.width / step / 2) * step;
 const gridCenterY = Math.floor(canvas.height / step / 2) * step;
