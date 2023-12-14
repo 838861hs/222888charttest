@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スタイリッシュなホームページ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>マイポートフォリオ</h1>
+        <nav>
+            <ul>
+                <li><a href="#about">私について</a></li>
+                <li><a href="#projects">プロジェクト</a></li>
+                <li><a href="#contact">連絡先</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="content">
+      <section id="about">
+        <h2>私について</h2>
+        <p>ここに自己紹介を書きます。</p>
+      </section>
+      
+      <section id="projects">
+        <h2>プロジェクト</h2>
+        <p>ここにプロジェクトの説明を書きます。</p>
+      </section>
+      
+      <section id="contact">
+        <h2>連絡先</h2>
+        <p>ここに連絡方法を書きます。</p>
+      </section>
+    </div>
+      
+    <footer>
+        <p>&copy; 2023 私のポートフォリオ</p>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('nav ul li a');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const sectionId = this.getAttribute('href');
+            document.querySelector(sectionId).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+});
+
+    </script>
+</body>
+</html>
